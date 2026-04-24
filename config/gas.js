@@ -20,9 +20,19 @@ const callGas = async (action, payload = {}) => {
       }
     });
   } catch (error) {
-    const message = error.response && error.response.data && error.response.data.error
-      ? error.response.data.error
-      : error.message || 'GAS request failed';
+    const format = (value) => {
+      if (typeof value === 'string') return value;
+      try {
+        return JSON.stringify(value);
+      } catch (err) {
+        return String(value);
+      }
+    };
+
+    const message = error.response && error.response.data
+      ? (error.response.data.error || format(error.response.data))
+      : format(error.message) || 'GAS request failed';
+
     return { success: false, error: `GAS API request failed: ${message}` };
   }
 
