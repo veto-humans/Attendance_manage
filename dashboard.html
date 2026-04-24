@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+  <head>
+    <title>出缺席管理頁面</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index,follow">
+    <meta name="generator" content="GrapesJS Studio">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="main.js"></script>
+  </head>
+
+  <body class="gjs-t-body font-body cls-5o96qr">
+    <div class="page-shell" id="page-shell">
+      <header class="top-header" id="top-header">
+        <div class="header-container" id="header-container">
+          <div class="brand-block" id="brand-block">
+            <div class="brand-text" id="brand-text">
+              <p class="eyebrow-text" id="eyebrow-text">Attendance Dashboard</p>
+              <h1 class="gjs-t-h1 font-heading page-title" id="page-title">出缺席填報系統</h1>
+            </div>
+          </div>
+          <div class="header-actions" id="header-actions">
+            <a href="./home.html" class="gjs-t-link back-link" id="back-link">返回首頁</a>
+            <button type="button" class="secondary-button" id="attendance-record-btn">今日點名紀錄</button>
+          </div>
+        </div>
+      </header>
+      <main class="main-content" id="main-content">
+        <section class="dashboard-section" id="dashboard-section">
+          <div class="overview-layout" id="overview-layout">
+            <div class="glass-card soft-shadow class-hero-card" id="class-hero-card">
+              <div class="class-hero-content" id="class-hero-content">
+                <div class="hero-top" id="hero-top">
+                  <div class="hero-info" id="hero-info">
+                    <div class="status-pills" id="status-pills">
+                      <span class="status-pill" id="status-pill-today">本日點名</span>
+                      <span class="status-pill" id="status-pill-normal">系統正常</span>
+                    </div>
+                    <div class="class-title-group" id="class-title-group">
+                      <h2 class="font-heading class-name" id="class-name">班級：一年甲班</h2>
+                      <p class="class-description" id="class-description">請先確認班級名單與今日應到人數，再填寫實到人數及缺席學生資訊。若有請假、曠課或遲到情形，請於下方逐筆填報。</p>
+                    </div>
+                  </div>
+                  <div class="hero-side-note" id="hero-side-note">
+                    <span class="date-label" id="date-label">填報日期</span>
+                    <strong class="font-heading date-value" id="date-value">2026 / 04 / 22</strong>
+                    <span class="session-label" id="session-label">早自習 / 第一節前</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="summary-grid" id="summary-grid">
+              <div class="glass-card summary-card" id="summary-card-class-info">
+                <div class="card-header" id="card-header-1">
+                  <img src="https://api.iconify.design/lucide-school.svg?color=%231d4ed8" alt="班級圖示" class="card-icon" id="card-icon-school" />
+                  <span class="card-label" id="card-label-1">班級資訊</span>
+                </div>
+                <strong class="font-heading card-value" id="card-value-1">一年甲班</strong>
+                <p class="card-note" id="card-note-1">導師：王老師</p>
+              </div>
+              <div class="glass-card summary-card" id="summary-card-total-students">
+                <div class="card-header" id="card-header-2">
+                  <img src="https://api.iconify.design/lucide-users.svg?color=%230f172a" alt="總人數圖示" class="card-icon" id="card-icon-users" />
+                  <span class="card-label" id="card-label-2">應到人數</span>
+                </div>
+                <strong class="font-heading card-value" id="card-value-2">32</strong>
+                <p class="card-note" id="card-note-2">依班級名單自動帶入</p>
+              </div>
+              <div class="glass-card summary-card" id="summary-card-attendance">
+                <div class="card-header" id="card-header-3">
+                  <img src="https://api.iconify.design/lucide-user-check.svg?color=%2315803d" alt="實到人數圖示" class="card-icon" id="card-icon-check" />
+                  <span class="card-label" id="card-label-3">實到人數</span>
+                </div>
+                <label id="attendance-input-group" class="attendance-input-group">
+                  <input type="text" value="" placeholder="請輸入實到人數" aria-label="文字輸入框" id="attendance-input" class="font-heading attendance-input" />
+                </label>
+              </div>
+            </div>
+            <div class="content-grid" id="content-grid">
+              <section class="glass-card soft-shadow attendance-form-panel" id="attendance-form-panel">
+                <div class="panel-header" id="panel-header">
+                  <div class="panel-intro" id="panel-intro">
+                    <h2 class="gjs-t-h2 font-heading panel-title" id="panel-title">缺席明細填報</h2>
+                    <p class="panel-subtitle" id="panel-subtitle">請依序輸入學生座號與事由，若該列未使用可保留空白。事由可依學校規範選擇病假、事假、曠課、遲到、身心調適假、生理假、公假或其他。</p>
+                  </div>
+                  <div class="panel-actions" id="panel-actions">
+                    <button type="button" class="import-button" id="import-button">套用昨日資料</button>
+                  </div>
+                </div>
+                <form method="post" action="#" class="attendance-form" id="attendance-form">
+                  <div class="grid-table table-header" id="grid-table">
+                    <div id="header-seat">座號</div>
+                    <div id="header-student">學生姓名備註</div>
+                    <div id="header-reason">事由</div>
+                    <div id="header-remark">補充說明</div>
+                  </div>
+                  <div id="attendance-rows-container"></div>
+                  <div id="button-container" style="text-align: center; margin-top: 1.5rem;">
+                    <button type="button" class="add-row-button" id="add-row-button">新增一筆</button>
+                  </div>
+                  <div class="form-footer" id="form-footer">
+                    <p class="footer-hint" id="footer-hint">填報完成後，請再次核對實到人數是否與缺席筆數一致，避免送出後資料不符。</p>
+                    <div class="footer-actions" id="footer-actions">
+                      <button type="button" class="save-draft-button" id="save-draft-button">暫存草稿</button>
+                      <button type="submit" class="gjs-t-button submit-button" id="submit-button">送出今日點名</button>
+                    </div>
+                  </div>
+                </form>
+              </section>
+              <aside class="sidebar-panel" id="sidebar-panel">
+                <div class="glass-card quick-stats-card" id="quick-stats-card">
+                  <h3 class="font-heading sidebar-title" id="sidebar-title-stats">今日統計</h3>
+                  <div class="stats-list" id="stats-list">
+                    <div class="stat-item" id="stat-item-sick">
+                      <span class="stat-label" id="stat-label-sick">病假</span>
+                      <strong class="font-heading stat-value" id="stat-value-sick">0</strong>
+                    </div>
+                    <div class="stat-item" id="stat-item-personal">
+                      <span class="stat-label" id="stat-label-personal">事假</span>
+                      <strong class="font-heading stat-value" id="stat-value-personal">0</strong>
+                    </div>
+                    <div class="stat-item" id="stat-item-absent">
+                      <span class="stat-label" id="stat-label-absent">曠課</span>
+                      <strong class="font-heading stat-value" id="stat-value-absent">0</strong>
+                    </div>
+                    <div class="stat-item" id="stat-item-late">
+                      <span class="stat-label" id="stat-label-late">遲到</span>
+                      <strong class="font-heading stat-value" id="stat-value-late">0</strong>
+                    </div>
+                    <div class="stat-item" id="stat-item-mental">
+                      <span class="stat-label" id="stat-label-mental">身心調適假</span>
+                      <strong class="font-heading stat-value" id="stat-value-mental">0</strong>
+                    </div>
+                    <div class="stat-item" id="stat-item-menstrual">
+                      <span class="stat-label" id="stat-label-menstrual">生理假</span>
+                      <strong class="font-heading stat-value" id="stat-value-menstrual">0</strong>
+                    </div>
+                    <div class="stat-item" id="stat-item-official">
+                      <span class="stat-label" id="stat-label-official">公假</span>
+                      <strong class="font-heading stat-value" id="stat-value-official">0</strong>
+                    </div>
+                    <div class="stat-item" id="stat-item-other">
+                      <span class="stat-label" id="stat-label-other">其他</span>
+                      <strong class="font-heading stat-value" id="stat-value-other">0</strong>
+                    </div>
+                  </div>
+                </div>
+                <div class="glass-card contact-card" id="contact-card">
+                  <h3 class="font-heading sidebar-title" id="sidebar-title-contact">協助窗口</h3>
+                  <div class="contact-item" id="contact-item-email">
+                    <img src="https://api.iconify.design/lucide-mail.svg?color=%2364748b" alt="電子郵件" class="contact-icon" id="contact-icon-email" />
+                    <div class="contact-text" id="contact-text-email">
+                      <span class="contact-label" id="contact-label-email">問題回報</span>
+                      <a href="mailto:s122222@yfms.tyc.edu.tw" class="gjs-t-link contact-link" id="contact-link-email">s122222@yfms.tyc.edu.tw</a>
+                    </div>
+                  </div>
+                  <div class="contact-item" id="contact-item-phone">
+                    <img src="https://api.iconify.design/lucide-phone.svg?color=%2364748b" alt="電話" class="contact-icon" id="contact-icon-phone" />
+                    <div class="contact-text" id="contact-text-phone">
+                      <span class="contact-label" id="contact-label-phone">校內分機</span>
+                      <span class="contact-value" id="contact-value-phone">#203 學務處</span>
+                    </div>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer class="footer" id="footer">
+        <div class="footer-container" id="footer-container">
+          <p id="footer-text-1">出缺席填報系統 Dashboard</p>
+          <p id="footer-text-2">問題返回：s122222@yfms.tyc.edu.tw</p>
+        </div>
+      </footer>
+    </div>
+  </body>
+
+</html>
