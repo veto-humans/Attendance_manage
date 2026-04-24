@@ -1,3 +1,7 @@
+const API_BASE = window.location.protocol.startsWith('http')
+  ? `${window.location.origin}/api`
+  : 'http://localhost:4000/api';
+
 window.addEventListener('DOMContentLoaded', initTeacherPage);
 
 function initTeacherPage() {
