@@ -12,9 +12,16 @@ exports.login = async (req, res) => {
     return res.status(400).json({ success: false, error: 'Email and password are required.' });
   }
 
-  const response = await getUserByEmail(email);
-  if (!response.success || !response.data) {
-    return res.status(401).json({ success: false, error: 'Invalid email or password.' });
+  let response;
+  try {
+    response = await getUserByEmail(email);
+  } catch (error) {
+    return res.status(500).json({ success: false, error: `Login service error: ${error.message}` });
+  }
+
+  if (!response || !response.success || !response.data) {
+    const errorMessage = response && response.error ? response.error : 'Invalid email or password.';
+    return res.status(401).json({ success: false, error: errorMessage });
   }
 
   const user = response.data;
@@ -51,9 +58,16 @@ exports.register = async (req, res) => {
     return res.status(400).json({ success: false, error: 'Name, email, and password are required.' });
   }
 
-  const response = await createUser({ email, password, name, className, studentCount, role, managedGrade });
-  if (!response.success) {
-    return res.status(400).json(response);
+  let response;
+  try {
+    response = await createUser({ email, password, name, className, studentCount, role, managedGrade });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: `Register service error: ${error.message}` });
+  }
+
+  if (!response || !response.success) {
+    const status = response && response.error && response.error === 'User already exists' ? 400 : 500;
+    return res.status(status).json(response || { success: false, error: 'Registration failed.' });
   }
 
   const token = signToken({

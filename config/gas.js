@@ -9,17 +9,29 @@ const callGas = async (action, payload = {}) => {
   }
   const url = `${GAS_WEBAPP_URL}?action=${encodeURIComponent(action)}`;
 
-  const response = await axios.post(url, {
-    apiKey: GAS_API_KEY,
-    ...payload
-  }, {
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  });
+    let response;
+  try {
+    response = await axios.post(url, {
+      apiKey: GAS_API_KEY,
+      ...payload
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+  } catch (error) {
+    const message = error.response && error.response.data && error.response.data.error
+      ? error.response.data.error
+      : error.message || 'GAS request failed';
+    return { success: false, error: `GAS API request failed: ${message}` };
+  }
 
-  if (!response.data) {
-    throw new Error('No response from GAS endpoint');
+  if (!response || !response.data) {
+    return { success: false, error: 'No response from GAS endpoint' };
+  }
+
+  if (typeof response.data !== 'object') {
+    return { success: false, error: 'Invalid JSON response from GAS endpoint' };
   }
 
   return response.data;
