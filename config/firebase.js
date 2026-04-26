@@ -15,9 +15,11 @@ const initializeFirebase = () => {
     throw new Error('FIREBASE_SERVICE_ACCOUNT is not valid JSON');
   }
 
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
+  if (!admin.apps.length) {
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+  }
 
   const db = admin.firestore();
   console.log('Firebase initialized');

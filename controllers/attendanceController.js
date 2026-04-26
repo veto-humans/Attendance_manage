@@ -25,7 +25,10 @@ exports.submitAttendance = async (req, res) => {
     res.json({ success: true, data: attendance });
   } catch (error) {
     console.error('Error submitting attendance:', error);
-    res.status(500).json({ success: false, error: 'Failed to submit attendance.' });
+    res.status(500).json({
+      success: false,
+      error: `Failed to submit attendance: ${error.message}`
+    });
   }
 };
 

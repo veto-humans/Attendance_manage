@@ -7,7 +7,7 @@ const authRoutes = require('./routes/auth');
 const attendanceRoutes = require('./routes/attendance');
 const managerRoutes = require('./routes/manager');
 
-const requiredEnv = ['JWT_SECRET', 'GAS_WEBAPP_URL', 'GAS_API_KEY'];
+const requiredEnv = ['JWT_SECRET', 'GAS_WEBAPP_URL', 'GAS_API_KEY', 'FIREBASE_SERVICE_ACCOUNT'];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);
 if (missingEnv.length > 0) {
   console.warn(`Missing required environment variables: ${missingEnv.join(', ')}`);
@@ -16,6 +16,9 @@ if (missingEnv.length > 0) {
   }
   if (missingEnv.includes('GAS_WEBAPP_URL') || missingEnv.includes('GAS_API_KEY')) {
     console.warn('GAS_WEBAPP_URL and GAS_API_KEY are required for user authentication and GAS-based data access.');
+  }
+  if (missingEnv.includes('FIREBASE_SERVICE_ACCOUNT')) {
+    console.warn('FIREBASE_SERVICE_ACCOUNT is required to initialize Firebase Admin SDK for Firestore writes.');
   }
 }
 
