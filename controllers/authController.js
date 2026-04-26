@@ -2,6 +2,9 @@ const jwt = require('jsonwebtoken');
 const { getUserByEmail, createUser, getClassInfo } = require('../config/gas');
 
 const signToken = (payload) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured.');
+  }
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
 };
 
@@ -55,7 +58,13 @@ exports.login = async (req, res) => {
     tokenPayload.studentCount = studentCount;
   }
 
-  const token = signToken(tokenPayload);
+  let token;
+  try {
+    token = signToken(tokenPayload);
+  } catch (error) {
+    console.error('JWT sign error:', error);
+    return res.status(500).json({ success: false, error: 'Server configuration error.' });
+  }
 
   const responseUser = {
     email: user.email,
@@ -105,13 +114,19 @@ exports.register = async (req, res) => {
     responseUser.studentCount = studentCount || 0;
   }
 
-  const token = signToken({
-    email,
-    name,
-    className,
-    role: role || 'teacher',
-    managedGrade: managedGrade || ''
-  });
+  let token;
+  try {
+    token = signToken({
+      email,
+      name,
+      className,
+      role: role || 'teacher',
+      managedGrade: managedGrade || ''
+    });
+  } catch (error) {
+    console.error('JWT sign error:', error);
+    return res.status(500).json({ success: false, error: 'Server configuration error.' });
+  }
 
   res.json({
     success: true,
