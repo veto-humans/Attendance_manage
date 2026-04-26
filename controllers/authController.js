@@ -63,7 +63,7 @@ exports.login = async (req, res) => {
     token = signToken(tokenPayload);
   } catch (error) {
     console.error('JWT sign error:', error);
-    return res.status(500).json({ success: false, error: 'Server configuration error.' });
+    return res.status(500).json({ success: false, error: error.message || 'Server configuration error.' });
   }
 
   const responseUser = {
@@ -125,7 +125,7 @@ exports.register = async (req, res) => {
     });
   } catch (error) {
     console.error('JWT sign error:', error);
-    return res.status(500).json({ success: false, error: 'Server configuration error.' });
+    return res.status(500).json({ success: false, error: error.message || 'Server configuration error.' });
   }
 
   res.json({

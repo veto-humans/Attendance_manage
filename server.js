@@ -7,6 +7,18 @@ const authRoutes = require('./routes/auth');
 const attendanceRoutes = require('./routes/attendance');
 const managerRoutes = require('./routes/manager');
 
+const requiredEnv = ['JWT_SECRET', 'GAS_WEBAPP_URL', 'GAS_API_KEY'];
+const missingEnv = requiredEnv.filter((key) => !process.env[key]);
+if (missingEnv.length > 0) {
+  console.warn(`Missing required environment variables: ${missingEnv.join(', ')}`);
+  if (missingEnv.includes('JWT_SECRET')) {
+    console.warn('JWT_SECRET is required for /api/auth/login and /api/auth/register. Please add it to .env.');
+  }
+  if (missingEnv.includes('GAS_WEBAPP_URL') || missingEnv.includes('GAS_API_KEY')) {
+    console.warn('GAS_WEBAPP_URL and GAS_API_KEY are required for user authentication and GAS-based data access.');
+  }
+}
+
 const app = express();
 app.use(cors());
 app.use(express.json());

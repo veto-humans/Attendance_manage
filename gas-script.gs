@@ -67,6 +67,15 @@ function getSheet(sheetName) {
   return sheet;
 }
 
+function normalizeHeaderMap(headerRow) {
+  return headerRow.reduce((map, value, index) => {
+    if (typeof value === 'string') {
+      map[value.trim().toLowerCase()] = index;
+    }
+    return map;
+  }, {});
+}
+
 function getClassSheet() {
   return getSheet(CLASS_SHEET_NAME);
 }
@@ -75,9 +84,12 @@ function getUserByEmail(email) {
   const sheet = getSheet(USER_SHEET_NAME);
   const rows = sheet.getDataRange().getValues();
   const header = rows.shift();
+  const headerMap = normalizeHeaderMap(header);
 
-  const emailIndex = header.indexOf('email');
-  if (emailIndex < 0) return { success: false, error: 'Users sheet missing email column' };
+  const emailIndex = headerMap['email'];
+  if (typeof emailIndex !== 'number' || emailIndex < 0) {
+    return { success: false, error: 'Users sheet missing email column' };
+  }
 
   const row = rows.find(r => r[emailIndex] === email);
   if (!row) {
@@ -85,12 +97,12 @@ function getUserByEmail(email) {
   }
 
   const user = {
-    name: row[header.indexOf('name')] || '',
+    name: row[headerMap['name']] || '',
     email: row[emailIndex],
-    password: row[header.indexOf('password')] || '',
-    className: row[header.indexOf('className')] || '',
-    role: row[header.indexOf('role')] || 'teacher',
-    managedGrade: row[header.indexOf('managedGrade')] || ''
+    password: row[headerMap['password']] || '',
+    className: row[headerMap['classname']] || '',
+    role: row[headerMap['role']] || 'teacher',
+    managedGrade: row[headerMap['managedgrade']] || ''
   };
 
   return { success: true, data: user };
@@ -100,10 +112,11 @@ function getClassInfo(className) {
   const sheet = getClassSheet();
   const rows = sheet.getDataRange().getValues();
   const header = rows.shift();
+  const headerMap = normalizeHeaderMap(header);
 
-  const classNameIndex = header.indexOf('className');
-  const studentCountIndex = header.indexOf('studentCount');
-  if (classNameIndex < 0 || studentCountIndex < 0) {
+  const classNameIndex = headerMap['classname'];
+  const studentCountIndex = headerMap['studentcount'];
+  if (typeof classNameIndex !== 'number' || typeof studentCountIndex !== 'number') {
     return { success: false, error: 'Classes sheet missing className or studentCount column' };
   }
 
@@ -129,10 +142,11 @@ function upsertClass(className, studentCount) {
   const sheet = getClassSheet();
   const rows = sheet.getDataRange().getValues();
   const header = rows.shift();
+  const headerMap = normalizeHeaderMap(header);
 
-  const classNameIndex = header.indexOf('className');
-  const studentCountIndex = header.indexOf('studentCount');
-  if (classNameIndex < 0 || studentCountIndex < 0) {
+  const classNameIndex = headerMap['classname'];
+  const studentCountIndex = headerMap['studentcount'];
+  if (typeof classNameIndex !== 'number' || typeof studentCountIndex !== 'number') {
     return { success: false, error: 'Classes sheet missing className or studentCount column' };
   }
 
@@ -140,7 +154,10 @@ function upsertClass(className, studentCount) {
   if (targetRowIndex >= 0) {
     sheet.getRange(targetRowIndex + 2, studentCountIndex + 1).setValue(Number(studentCount) || 0);
   } else {
-    sheet.appendRow([className, Number(studentCount) || 0]);
+    const row = [];
+    row[classNameIndex] = className;
+    row[studentCountIndex] = Number(studentCount) || 0;
+    sheet.appendRow(row);
   }
 
   return {
@@ -156,23 +173,25 @@ function createUser(payload) {
   const sheet = getSheet(USER_SHEET_NAME);
   const rows = sheet.getDataRange().getValues();
   const header = rows.shift();
+  const headerMap = normalizeHeaderMap(header);
 
-  const emailIndex = header.indexOf('email');
-  if (emailIndex < 0) return { success: false, error: 'Users sheet missing email column' };
+  const emailIndex = headerMap['email'];
+  if (typeof emailIndex !== 'number' || emailIndex < 0) {
+    return { success: false, error: 'Users sheet missing email column' };
+  }
 
   const existing = rows.some(r => r[emailIndex] === payload.email);
   if (existing) {
     return { success: false, error: 'User already exists' };
   }
 
-  const row = [
-    payload.email,
-    payload.password || '',
-    payload.name || '',
-    payload.className || '',
-    payload.role || 'teacher',
-    payload.managedGrade || ''
-  ];
+  const row = [];
+  row[emailIndex] = payload.email;
+  if (typeof headerMap['password'] === 'number') row[headerMap['password']] = payload.password || '';
+  if (typeof headerMap['name'] === 'number') row[headerMap['name']] = payload.name || '';
+  if (typeof headerMap['classname'] === 'number') row[headerMap['classname']] = payload.className || '';
+  if (typeof headerMap['role'] === 'number') row[headerMap['role']] = payload.role || 'teacher';
+  if (typeof headerMap['managedgrade'] === 'number') row[headerMap['managedgrade']] = payload.managedGrade || '';
   sheet.appendRow(row);
 
   if (payload.className && typeof payload.studentCount !== 'undefined') {
@@ -199,12 +218,13 @@ function getUsersByGrade(grade) {
   const userSheet = getSheet(USER_SHEET_NAME);
   const userRows = userSheet.getDataRange().getValues();
   const userHeader = userRows.shift();
+  const headerMap = normalizeHeaderMap(userHeader);
 
-  const managedGradeIndex = userHeader.indexOf('managedGrade');
-  const roleIndex = userHeader.indexOf('role');
-  const classNameIndex = userHeader.indexOf('className');
-  const nameIndex = userHeader.indexOf('name');
-  const emailIndex = userHeader.indexOf('email');
+  const managedGradeIndex = headerMap['managedgrade'];
+  const roleIndex = headerMap['role'];
+  const classNameIndex = headerMap['classname'];
+  const nameIndex = headerMap['name'];
+  const emailIndex = headerMap['email'];
 
   const classCounts = loadClassCounts();
 
@@ -215,7 +235,7 @@ function getUsersByGrade(grade) {
       if (role !== 'teacher') {
         return false;
       }
-      if (managedGradeIndex >= 0 && row[managedGradeIndex] === grade) {
+      if (typeof managedGradeIndex === 'number' && row[managedGradeIndex] === grade) {
         return true;
       }
       return className.toString().startsWith(grade.toString());
@@ -228,7 +248,7 @@ function getUsersByGrade(grade) {
         className,
         studentCount: classCounts[className] || 0,
         role: 'teacher',
-        managedGrade: managedGradeIndex >= 0 ? row[managedGradeIndex] || '' : ''
+        managedGrade: typeof managedGradeIndex === 'number' ? row[managedGradeIndex] || '' : ''
       };
     });
 
@@ -239,10 +259,11 @@ function loadClassCounts() {
   const classSheet = getClassSheet();
   const rows = classSheet.getDataRange().getValues();
   const header = rows.shift();
+  const headerMap = normalizeHeaderMap(header);
 
-  const classNameIndex = header.indexOf('className');
-  const studentCountIndex = header.indexOf('studentCount');
-  if (classNameIndex < 0 || studentCountIndex < 0) {
+  const classNameIndex = headerMap['classname'];
+  const studentCountIndex = headerMap['studentcount'];
+  if (typeof classNameIndex !== 'number' || typeof studentCountIndex !== 'number') {
     return {};
   }
 
