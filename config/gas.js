@@ -9,7 +9,7 @@ const callGas = async (action, payload = {}) => {
   }
   const url = `${GAS_WEBAPP_URL}?action=${encodeURIComponent(action)}`;
 
-    let response;
+  let response;
   try {
     response = await axios.post(url, {
       apiKey: GAS_API_KEY,
@@ -40,6 +40,15 @@ const callGas = async (action, payload = {}) => {
     return { success: false, error: 'No response from GAS endpoint' };
   }
 
+  if (typeof response.data === 'string') {
+    try {
+      return JSON.parse(response.data);
+    } catch (parseError) {
+      const snippet = response.data.length > 300 ? response.data.slice(0, 300) + '...' : response.data;
+      return { success: false, error: `Invalid JSON response from GAS endpoint: ${snippet}` };
+    }
+  }
+
   if (typeof response.data !== 'object') {
     return { success: false, error: 'Invalid JSON response from GAS endpoint' };
   }
@@ -57,5 +66,13 @@ exports.createUser = async (payload) => {
 
 exports.getUsersByGrade = async (grade) => {
   return callGas('getUsersByGrade', { grade });
+};
+
+exports.getClassInfo = async (className) => {
+  return callGas('getClassInfo', { className });
+};
+
+exports.upsertClass = async (className, studentCount) => {
+  return callGas('upsertClass', { className, studentCount });
 };
 

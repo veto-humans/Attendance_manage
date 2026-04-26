@@ -191,9 +191,20 @@ async function performLogin(email, password) {
       body: JSON.stringify({ email, password })
     });
 
-    const payload = await response.json();
+    const responseText = await response.text();
+    if (!responseText) {
+      throw new Error(`伺服器未回傳資料（狀態碼 ${response.status}）`);
+    }
+
+    let payload;
+    try {
+      payload = JSON.parse(responseText);
+    } catch (parseError) {
+      throw new Error(`伺服器回傳非 JSON：${responseText}`);
+    }
+
     if (!response.ok || !payload.success) {
-      throw new Error(payload.error || '登錄失敗，請檢查帳號與密碼');
+      throw new Error(payload.error || `登錄失敗，請檢查帳號與密碼`);
     }
 
     const user = payload.user || {};

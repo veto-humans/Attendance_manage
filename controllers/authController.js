@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { getUserByEmail, createUser } = require('../config/gas');
+const { getUserByEmail, createUser, getClassInfo } = require('../config/gas');
 
 const signToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
@@ -29,25 +29,49 @@ exports.login = async (req, res) => {
     return res.status(401).json({ success: false, error: 'Invalid email or password.' });
   }
 
-  const token = signToken({
+  let studentCount;
+  if (user.role === 'student' && user.className) {
+    try {
+      const classInfo = await getClassInfo(user.className);
+      if (classInfo && classInfo.success && classInfo.data) {
+        studentCount = classInfo.data.studentCount || 0;
+      } else {
+        studentCount = 0;
+      }
+    } catch (error) {
+      studentCount = 0;
+    }
+  }
+
+  const tokenPayload = {
     email: user.email,
     name: user.name,
     className: user.className,
     role: user.role,
     managedGrade: user.managedGrade
-  });
+  };
+
+  if (typeof studentCount !== 'undefined') {
+    tokenPayload.studentCount = studentCount;
+  }
+
+  const token = signToken(tokenPayload);
+
+  const responseUser = {
+    email: user.email,
+    name: user.name,
+    className: user.className,
+    role: user.role,
+    managedGrade: user.managedGrade
+  };
+  if (typeof studentCount !== 'undefined') {
+    responseUser.studentCount = studentCount;
+  }
 
   res.json({
     success: true,
     token,
-    user: {
-      email: user.email,
-      name: user.name,
-      className: user.className,
-      studentCount: user.studentCount,
-      role: user.role,
-      managedGrade: user.managedGrade
-    }
+    user: responseUser
   });
 };
 
@@ -70,6 +94,17 @@ exports.register = async (req, res) => {
     return res.status(status).json(response || { success: false, error: 'Registration failed.' });
   }
 
+  const responseUser = {
+    email,
+    name,
+    className,
+    role: role || 'teacher',
+    managedGrade: managedGrade || ''
+  };
+  if (role === 'student') {
+    responseUser.studentCount = studentCount || 0;
+  }
+
   const token = signToken({
     email,
     name,
@@ -81,7 +116,7 @@ exports.register = async (req, res) => {
   res.json({
     success: true,
     token,
-    user: { email, name, className, studentCount, role: role || 'teacher', managedGrade: managedGrade || '' }
+    user: responseUser
   });
 };
 
