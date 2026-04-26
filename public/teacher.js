@@ -1,21 +1,19 @@
-const API_BASE = window.location.protocol.startsWith('http')
-  ? `${window.location.origin}/api`
-  : 'http://localhost:4000/api';
+const API_BASE = window.API_BASE || '/api';
 
 window.addEventListener('DOMContentLoaded', initTeacherPage);
 
 function initTeacherPage() {
-//   const role = localStorage.getItem('userRole');
-//   if (!role || role !== 'teacher') {
-//     if (role === 'Military Instructor') {
-//       window.location.href = './manager.html';
-//     } else if (role === 'student') {
-//       window.location.href = './dashboard.html';
-//     } else {
-//       window.location.href = './home.html';
-//     }
-//     return;
-//   }
+  const role = localStorage.getItem('userRole');
+  if (!role || role !== 'teacher') {
+    if (role === 'Military Instructor') {
+      window.location.href = './manager.html';
+    } else if (role === 'student') {
+      window.location.href = './dashboard.html';
+    } else {
+      window.location.href = './home.html';
+    }
+    return;
+  }
 
   const logoutButton = document.getElementById('logout-button');
   const refreshButton = document.getElementById('refresh-button');

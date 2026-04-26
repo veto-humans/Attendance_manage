@@ -30,12 +30,17 @@ app.use((err, req, res, next) => {
 
 const port = process.env.PORT || 4000;
 
+let firebaseInitialized = false;
 try {
   initializeFirebase();
-  app.listen(port, () => {
-    console.log(`Attendance backend running on http://localhost:${port}`);
-  });
+  firebaseInitialized = true;
 } catch (err) {
-  console.error('Failed to start server:', err);
-  process.exit(1);
+  console.warn('Firebase initialization failed. Server will still start, but Firestore features may not work:', err.message);
 }
+
+app.listen(port, () => {
+  console.log(`Attendance backend running on port ${port}`);
+  if (!firebaseInitialized) {
+    console.warn('Warning: Firebase was not initialized. Attendance and manager routes may fail if they depend on Firestore.');
+  }
+});

@@ -1,6 +1,4 @@
-const API_BASE = window.location.protocol.startsWith('http')
-  ? `${window.location.origin}/api`
-  : 'http://localhost:4000/api';
+const API_BASE = window.API_BASE || '/api';
 
 // ============================================================================
 // 登錄頁面 (Login Page) 功能模組
