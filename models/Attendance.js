@@ -9,23 +9,49 @@ const COLLECTION_NAME = 'attendance';
  */
 const createAttendance = async (data) => {
   const db = admin.firestore();
-  const docRef = await db.collection(COLLECTION_NAME).add({
+
+  // Firestore will automatically create the collection when a document is written.
+  // Use a unique record per user/class combination so repeated submissions overwrite.
+  const querySnapshot = await db.collection(COLLECTION_NAME)
+    .where('email', '==', data.email)
+    .where('className', '==', data.className)
+    .limit(1)
+    .get();
+
+  const record = {
     ...data,
     teacherConfirmed: false,
     teacherConfirmedBy: null,
     teacherConfirmedAt: null,
-    createdAt: admin.firestore.FieldValue.serverTimestamp(),
     updatedAt: admin.firestore.FieldValue.serverTimestamp()
-  });
+  };
+
+  if (querySnapshot.empty) {
+    record.createdAt = admin.firestore.FieldValue.serverTimestamp();
+    const docRef = await db.collection(COLLECTION_NAME).add(record);
+
+    return {
+      id: docRef.id,
+      ...data,
+      teacherConfirmed: false,
+      teacherConfirmedBy: null,
+      teacherConfirmedAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+  }
+
+  const doc = querySnapshot.docs[0];
+  await doc.ref.update(record);
+  const updatedDoc = await doc.ref.get();
+  const updatedData = updatedDoc.data();
 
   return {
-    id: docRef.id,
-    ...data,
-    teacherConfirmed: false,
-    teacherConfirmedBy: null,
-    teacherConfirmedAt: null,
-    createdAt: new Date(),
-    updatedAt: new Date()
+    id: updatedDoc.id,
+    ...updatedData,
+    createdAt: updatedData.createdAt?.toDate() || new Date(),
+    updatedAt: updatedData.updatedAt?.toDate() || new Date(),
+    teacherConfirmedAt: updatedData.teacherConfirmedAt?.toDate() || null
   };
 };
 

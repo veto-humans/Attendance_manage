@@ -3,7 +3,7 @@ const admin = require('firebase-admin');
 const initializeFirebase = () => {
   // Load Firebase credentials from .env
   const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
-  
+
   if (!serviceAccountJson) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT is not configured in .env');
   }
@@ -16,13 +16,12 @@ const initializeFirebase = () => {
   }
 
   admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: process.env.FIREBASE_DATABASE_URL
+    credential: admin.credential.cert(serviceAccount)
   });
 
   const db = admin.firestore();
   console.log('Firebase initialized');
-  
+
   return db;
 };
 
