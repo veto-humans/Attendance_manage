@@ -191,8 +191,12 @@ function createClassCardHtml(item) {
   const confirmed = item.teacherConfirmed;
   const submitted = item.submitted;
   const statusText = !submitted ? '未填報' : (confirmed ? '老師已確認' : '待老師確認');
-  const statusClass = submitted ? 'class-status' : 'class-status status-pending';
-  const statusDotClass = submitted ? 'status-dot' : 'status-dot status-pending-dot';
+  const statusClass = !submitted
+    ? 'class-status status-missing'
+    : (confirmed ? 'class-status' : 'class-status status-pending');
+  const statusDotClass = !submitted
+    ? 'status-dot status-missing-dot'
+    : (confirmed ? 'status-dot' : 'status-dot status-pending-dot');
   const submittedAt = item.submittedAt ? new Date(item.submittedAt).toLocaleString('zh-Hant-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '尚未填報';
 
   const metricsSection = submitted ? `

@@ -720,6 +720,12 @@ video {
   gap: 1.25rem;
 }
 
+#manager-class-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
 .class-result-card {
   border-radius: 28px;
   border-width: 1px;
@@ -860,6 +866,32 @@ video {
   line-height: 1.75rem;
   color: rgb(71 85 105 / 1);
   margin-top: 1rem;
+}
+
+.status-missing {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 9999px;
+  border-width: 1px;
+  border-color: rgb(220 38 38 / 1);
+  background-color: rgb(254 226 226 / 1);
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 500;
+  color: rgb(185 28 28 / 1);
+}
+
+.status-missing-dot {
+  width: .55rem;
+  height: .55rem;
+  border-radius: 9999px;
+  display: inline-block;
+  background-color: rgb(220 38 38 / 1);
 }
 
 .status-pending {
