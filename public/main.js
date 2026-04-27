@@ -212,6 +212,7 @@ async function performLogin(email, password) {
     localStorage.setItem('className', user.className || '');
     localStorage.setItem('studentCount', user.studentCount || '0');
     localStorage.setItem('userRole', user.role || 'student');
+    localStorage.setItem('managedGrade', user.managedGrade || '');
 
     if (user.role === 'Military Instructor') {
       window.location.href = './manager.html';

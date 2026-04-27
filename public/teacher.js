@@ -17,6 +17,8 @@ function initTeacherPage() {
 
   const logoutButton = document.getElementById('logout-button');
   const refreshButton = document.getElementById('refresh-button');
+  const confirmButton = document.getElementById('confirm-button');
+
   if (logoutButton) {
     logoutButton.addEventListener('click', () => {
       localStorage.removeItem('authToken');
@@ -26,6 +28,9 @@ function initTeacherPage() {
   }
   if (refreshButton) {
     refreshButton.addEventListener('click', loadTeacherAttendance);
+  }
+  if (confirmButton) {
+    confirmButton.addEventListener('click', handleConfirmAttendance);
   }
 
   const className = localStorage.getItem('className') || '未知班級';
@@ -93,6 +98,11 @@ function renderTeacherAttendance(data) {
     return;
   }
 
+  const confirmButton = document.getElementById('confirm-button');
+  if (!confirmButton) {
+    return;
+  }
+
   if (!data) {
     statusText.textContent = '尚未完成學生填報';
     statusValue.textContent = '未填報';
@@ -100,9 +110,9 @@ function renderTeacherAttendance(data) {
     confirmedBy.textContent = '-';
     contentArea.innerHTML = `
       <div class="content-message">目前尚未有學生提交的出缺席記錄。</div>
-      <button type="button" class="gjs-t-button submit-button" id="refresh-button">重新整理</button>
     `;
-    document.getElementById('refresh-button')?.addEventListener('click', loadTeacherAttendance);
+    confirmButton.style.display = 'none';
+    confirmButton.disabled = true;
     return;
   }
 
@@ -116,16 +126,11 @@ function renderTeacherAttendance(data) {
   const attendanceCount = data.attendanceCount || 0;
   const absentCount = data.records ? data.records.length : 0;
 
-  const buttonHtml = teacherConfirmed
-    ? '<button type="button" class="gjs-t-button submit-button" disabled>已確認</button>'
-    : '<button type="button" class="gjs-t-button submit-button" id="confirm-button">確認出缺席</button>';
-
   contentArea.innerHTML = `
     <div class="content-summary">
       <div class="summary-row"><strong>填報時間：</strong><span>${submittedAt}</span></div>
       <div class="summary-row"><strong>實到人數：</strong><span>${attendanceCount}</span></div>
       <div class="summary-row"><strong>缺席人數：</strong><span>${absentCount}</span></div>
-      <div class="teacher-controls">${buttonHtml}</div>
     </div>
     <div class="table-shell scroll-panel absence-table-wrapper">
       <div class="absence-table-card">
@@ -147,11 +152,13 @@ function renderTeacherAttendance(data) {
     </div>
   `;
 
-  if (!teacherConfirmed) {
-    const confirmButton = document.getElementById('confirm-button');
-    if (confirmButton) {
-      confirmButton.addEventListener('click', handleConfirmAttendance);
-    }
+  confirmButton.style.display = '';
+  if (teacherConfirmed) {
+    confirmButton.disabled = true;
+    confirmButton.textContent = '已確認';
+  } else {
+    confirmButton.disabled = false;
+    confirmButton.textContent = '確認出缺席';
   }
 }
 

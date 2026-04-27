@@ -80,6 +80,12 @@ function getClassSheet() {
   return getSheet(CLASS_SHEET_NAME);
 }
 
+function normalizeString(value) {
+  return value !== undefined && value !== null
+    ? String(value).trim().toLowerCase()
+    : '';
+}
+
 function getUserByEmail(email) {
   const sheet = getSheet(USER_SHEET_NAME);
   const rows = sheet.getDataRange().getValues();
@@ -102,7 +108,7 @@ function getUserByEmail(email) {
     password: row[headerMap['password']] || '',
     className: row[headerMap['classname']] || '',
     role: row[headerMap['role']] || 'teacher',
-    managedGrade: row[headerMap['managedgrade']] || ''
+    managedGrade: normalizeString(row[headerMap['managedgrade']]) || ''
   };
 
   return { success: true, data: user };
@@ -227,18 +233,21 @@ function getUsersByGrade(grade) {
   const emailIndex = headerMap['email'];
 
   const classCounts = loadClassCounts();
+  const normalizedGrade = normalizeString(grade);
 
   const teachers = userRows
     .filter((row) => {
-      const role = row[roleIndex] || 'teacher';
-      const className = row[classNameIndex] || '';
+      const role = normalizeString(row[roleIndex]) || 'teacher';
+      const className = String(row[classNameIndex] || '').trim();
+      const rowManagedGrade = normalizeString(row[managedGradeIndex]);
+
       if (role !== 'teacher') {
         return false;
       }
-      if (typeof managedGradeIndex === 'number' && row[managedGradeIndex] === grade) {
+      if (rowManagedGrade && normalizedGrade && rowManagedGrade === normalizedGrade) {
         return true;
       }
-      return className.toString().startsWith(grade.toString());
+      return normalizedGrade && className.toLowerCase().startsWith(normalizedGrade);
     })
     .map((row) => {
       const className = row[classNameIndex] || '';
@@ -248,7 +257,7 @@ function getUsersByGrade(grade) {
         className,
         studentCount: classCounts[className] || 0,
         role: 'teacher',
-        managedGrade: typeof managedGradeIndex === 'number' ? row[managedGradeIndex] || '' : ''
+        managedGrade: typeof managedGradeIndex === 'number' ? normalizeString(row[managedGradeIndex]) || '' : ''
       };
     });
 
