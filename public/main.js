@@ -373,8 +373,46 @@ function initializeWithClassInfo() {
     cardValue2.textContent = studentCount;
   }
 
+  // 讀取導師資訊
+  loadClassTeacher(className);
+
   // 初始化第一個填寫區塊
   initializeFirstAttendanceRow();
+}
+
+async function loadClassTeacher(className) {
+  const teacherNote = document.getElementById('card-note-1');
+  const token = localStorage.getItem('authToken');
+
+  if (!teacherNote) {
+    return;
+  }
+
+  if (!className || className === '未知班級') {
+    teacherNote.textContent = '導師：查無班級資訊';
+    return;
+  }
+
+  teacherNote.textContent = '導師：載入中...';
+
+  try {
+    const response = await fetch(`${API_BASE}/attendance/teacher?className=${encodeURIComponent(className)}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const payload = await response.json();
+    if (!response.ok || !payload.success) {
+      throw new Error(payload.error || '無法載入導師資訊');
+    }
+
+    const teacherName = payload.data?.name || '';
+    teacherNote.textContent = teacherName ? `導師：${teacherName}` : '導師：查無導師資料';
+  } catch (error) {
+    teacherNote.textContent = '導師：查無導師資料';
+  }
 }
 
 /**

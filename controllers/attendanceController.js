@@ -4,6 +4,7 @@ const {
   getLatestAttendanceByClassName,
   confirmLatestAttendanceByClassName
 } = require('../models/Attendance');
+const { getTeacherByClass } = require('../config/gas');
 
 exports.submitAttendance = async (req, res) => {
   const { records, attendanceCount } = req.body;
@@ -60,6 +61,26 @@ exports.getClassAttendance = async (req, res) => {
   } catch (error) {
     console.error('Error retrieving class attendance:', error);
     res.status(500).json({ success: false, error: 'Failed to retrieve class attendance.' });
+  }
+};
+
+exports.getClassTeacher = async (req, res) => {
+  const className = req.query.className || req.user.className;
+
+  if (!className) {
+    return res.status(400).json({ success: false, error: 'Class name is required.' });
+  }
+
+  try {
+    const response = await getTeacherByClass(className);
+    if (!response || !response.success) {
+      return res.status(404).json({ success: false, error: response && response.error ? response.error : 'Teacher not found for class.' });
+    }
+
+    res.json({ success: true, data: response.data });
+  } catch (error) {
+    console.error('Error retrieving class teacher:', error);
+    res.status(500).json({ success: false, error: 'Failed to retrieve class teacher.' });
   }
 };
 

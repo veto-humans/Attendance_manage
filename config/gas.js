@@ -68,6 +68,10 @@ exports.getUsersByGrade = async (grade) => {
   return callGas('getUsersByGrade', { grade });
 };
 
+exports.getTeacherByClass = async (className) => {
+  return callGas('getTeacherByClass', { className });
+};
+
 exports.getClassInfo = async (className) => {
   return callGas('getClassInfo', { className });
 };

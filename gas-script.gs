@@ -264,6 +264,43 @@ function getUsersByGrade(grade) {
   return { success: true, data: teachers };
 }
 
+function getTeacherByClass(className) {
+  const sheet = getSheet(USER_SHEET_NAME);
+  const rows = sheet.getDataRange().getValues();
+  const header = rows.shift();
+  const headerMap = normalizeHeaderMap(header);
+
+  const classNameIndex = headerMap['classname'];
+  const roleIndex = headerMap['role'];
+  const nameIndex = headerMap['name'];
+  const emailIndex = headerMap['email'];
+
+  if (typeof classNameIndex !== 'number' || typeof roleIndex !== 'number') {
+    return { success: false, error: 'Users sheet missing className or role column' };
+  }
+
+  const normalizedClassName = normalizeString(className);
+  const row = rows.find((r) => {
+    const rowClassName = normalizeString(r[classNameIndex]);
+    const role = normalizeString(r[roleIndex]) || 'teacher';
+    return role === 'teacher' && rowClassName === normalizedClassName;
+  });
+
+  if (!row) {
+    return { success: false, error: 'Teacher not found for class.' };
+  }
+
+  return {
+    success: true,
+    data: {
+      name: row[nameIndex] || '',
+      email: row[emailIndex] || '',
+      className: row[classNameIndex] || '',
+      role: 'teacher'
+    }
+  };
+}
+
 function loadClassCounts() {
   const classSheet = getClassSheet();
   const rows = classSheet.getDataRange().getValues();
