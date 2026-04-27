@@ -1,6 +1,18 @@
 const { getLatestAttendanceByClassName } = require('../models/Attendance');
 const { getUsersByGrade } = require('../config/gas');
 
+const normalizeManagedGrade = (grade) => {
+  if (grade === undefined || grade === null) {
+    return '';
+  }
+  const value = String(grade).trim();
+  if (!value) {
+    return '';
+  }
+  const numericMatch = value.match(/\d/);
+  return numericMatch ? numericMatch[0] : value;
+};
+
 exports.getManagedGradeClasses = async (req, res) => {
   const user = req.user;
 
@@ -8,7 +20,7 @@ exports.getManagedGradeClasses = async (req, res) => {
     return res.status(403).json({ success: false, error: 'Military Instructor 權限不足。' });
   }
 
-  const managedGrade = String(user.managedGrade || '').trim();
+  const managedGrade = normalizeManagedGrade(user.managedGrade);
   if (!managedGrade) {
     return res.status(400).json({ success: false, error: '未設定管理年段。' });
   }
@@ -62,7 +74,7 @@ exports.getManagedGradeClasses = async (req, res) => {
   res.json({
     success: true,
     data: {
-      grade: user.managedGrade,
+      grade: managedGrade,
       classes: sortedClasses,
       summary: {
         totalClasses: sortedClasses.length,

@@ -8,6 +8,18 @@ const signToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '8h' });
 };
 
+const normalizeManagedGrade = (grade) => {
+  if (grade === undefined || grade === null) {
+    return '';
+  }
+  const value = String(grade).trim();
+  if (!value) {
+    return '';
+  }
+  const numericMatch = value.match(/\d/);
+  return numericMatch ? numericMatch[0] : value;
+};
+
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -46,12 +58,14 @@ exports.login = async (req, res) => {
     }
   }
 
+  const normalizedManagedGrade = normalizeManagedGrade(user.managedGrade);
+
   const tokenPayload = {
     email: user.email,
     name: user.name,
     className: user.className,
     role: user.role,
-    managedGrade: user.managedGrade || ''
+    managedGrade: normalizedManagedGrade
   };
 
   if (typeof studentCount !== 'undefined') {
@@ -71,7 +85,7 @@ exports.login = async (req, res) => {
     name: user.name,
     className: user.className,
     role: user.role,
-    managedGrade: user.managedGrade || ''
+    managedGrade: normalizedManagedGrade
   };
   if (typeof studentCount !== 'undefined') {
     responseUser.studentCount = studentCount;
@@ -86,6 +100,7 @@ exports.login = async (req, res) => {
 
 exports.register = async (req, res) => {
   const { email, password, name, className, studentCount, role, managedGrade } = req.body;
+  const normalizedManagedGrade = normalizeManagedGrade(managedGrade);
 
   if (!email || !password || !name) {
     return res.status(400).json({ success: false, error: 'Name, email, and password are required.' });
@@ -93,7 +108,7 @@ exports.register = async (req, res) => {
 
   let response;
   try {
-    response = await createUser({ email, password, name, className, studentCount, role, managedGrade });
+    response = await createUser({ email, password, name, className, studentCount, role, managedGrade: normalizedManagedGrade });
   } catch (error) {
     return res.status(500).json({ success: false, error: `Register service error: ${error.message}` });
   }
@@ -108,7 +123,7 @@ exports.register = async (req, res) => {
     name,
     className,
     role: role || 'teacher',
-    managedGrade: managedGrade || ''
+    managedGrade: normalizedManagedGrade
   };
   if (role === 'student') {
     responseUser.studentCount = studentCount || 0;
@@ -121,7 +136,7 @@ exports.register = async (req, res) => {
       name,
       className,
       role: role || 'teacher',
-      managedGrade: managedGrade || ''
+      managedGrade: normalizedManagedGrade
     });
   } catch (error) {
     console.error('JWT sign error:', error);

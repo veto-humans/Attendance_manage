@@ -73,12 +73,13 @@ async function loadManagerClasses() {
   }
 }
 
-function renderEmptyState(message) {
+function renderEmptyState(message, grade = '未設定') {
   const classListContainer = document.getElementById('manager-class-list');
   const emptyState = document.getElementById('manager-empty-state');
   const totalClassesEl = document.getElementById('ibpj1z');
   const totalAbsenceEl = document.getElementById('il9qbl');
   const pendingClassesEl = document.getElementById('ix56n3');
+  const gradeLabel = document.getElementById('manager-grade-label');
 
   if (classListContainer) classListContainer.innerHTML = '';
   if (emptyState) {
@@ -88,6 +89,7 @@ function renderEmptyState(message) {
   if (totalClassesEl) totalClassesEl.textContent = '0';
   if (totalAbsenceEl) totalAbsenceEl.textContent = '0';
   if (pendingClassesEl) pendingClassesEl.textContent = '0';
+  if (gradeLabel) gradeLabel.textContent = `管理年段：${grade}`;
 }
 
 function renderManagerClasses(data) {
@@ -97,22 +99,32 @@ function renderManagerClasses(data) {
   const totalAbsenceEl = document.getElementById('il9qbl');
   const pendingClassesEl = document.getElementById('ix56n3');
 
-  if (!classListContainer || !totalClassesEl || !totalAbsenceEl || !pendingClassesEl) {
+  if (!classListContainer || !emptyState || !totalClassesEl || !totalAbsenceEl || !pendingClassesEl) {
     return;
   }
 
   emptyState.style.display = 'none';
 
+  const grade = data.grade || '未設定';
   const classes = data.classes || [];
+  const summary = data.summary || {};
+  const absenceTotal = classes.reduce((sum, item) => sum + ((item.teacherConfirmed && item.absentCount) ? item.absentCount : 0), 0);
+  const pendingCount = classes.filter((item) => !item.teacherConfirmed).length;
+
+  const totalClasses = summary.totalClasses ?? classes.length;
+  const totalAbsence = summary.totalAbsence ?? absenceTotal;
+  const pending = summary.pendingCount ?? pendingCount;
+
+  setManagerGradeLabel(grade);
+
   if (classes.length === 0) {
-    renderEmptyState('此年段目前沒有任何教師班級資料，請確認 Google Sheet 中已設定班級資訊。');
+    renderEmptyState('此年段目前沒有任何教師班級資料，請確認 Google Sheet 中已設定班級資訊。', grade);
     return;
   }
 
-  totalClassesEl.textContent = classes.length.toString();
-  const absenceTotal = classes.reduce((sum, item) => sum + ((item.teacherConfirmed && item.absentCount) ? item.absentCount : 0), 0);
-  totalAbsenceEl.textContent = absenceTotal.toString();
-  pendingClassesEl.textContent = classes.filter((item) => !item.teacherConfirmed).length.toString();
+  totalClassesEl.textContent = totalClasses.toString();
+  totalAbsenceEl.textContent = totalAbsence.toString();
+  pendingClassesEl.textContent = pending.toString();
 
   // Calculate total statistics across all submitted classes
   const totalStats = calculateTotalStats(classes);
@@ -120,14 +132,21 @@ function renderManagerClasses(data) {
   // Update sidebar statistics
   updateStatValue('stat-value-sick', totalStats.sick);
   updateStatValue('stat-value-personal', totalStats.personal);
-  updateStatValue('stat-value-official', totalStats.official);
   updateStatValue('stat-value-absent', totalStats.absent);
   updateStatValue('stat-value-late', totalStats.late);
   updateStatValue('stat-value-mental', totalStats.mental);
   updateStatValue('stat-value-menstrual', totalStats.menstrual);
+  updateStatValue('stat-value-official', totalStats.official);
   updateStatValue('stat-value-other', totalStats.other);
 
   classListContainer.innerHTML = classes.map(createClassCardHtml).join('');
+}
+
+function setManagerGradeLabel(grade) {
+  const gradeLabel = document.getElementById('manager-grade-label');
+  if (gradeLabel) {
+    gradeLabel.textContent = `管理年段：${grade}`;
+  }
 }
 
 function calculateTotalStats(classes) {
