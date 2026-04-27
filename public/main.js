@@ -358,62 +358,41 @@ function initializeDashboard() {
  * 從 localStorage 加載班級信息並初始化表單
  */
 function initializeWithClassInfo() {
-  const cardValue1 = document.getElementById('card-value-1');
+  const dashboardClassName = document.getElementById('class-name');
   const cardValue2 = document.getElementById('card-value-2');
+  const dateValue = document.getElementById('date-value');
+  const sessionLabel = document.getElementById('session-label');
 
   // 從 localStorage 讀取班級信息
   const className = localStorage.getItem('className') || '未知班級';
   const studentCount = localStorage.getItem('studentCount') || 0;
 
   // 更新 HTML 顯示
-  if (cardValue1) {
-    cardValue1.textContent = className;
+  if (dashboardClassName) {
+    dashboardClassName.textContent = `班級：${className}`;
   }
   if (cardValue2) {
     cardValue2.textContent = studentCount;
   }
 
-  // 讀取導師資訊
-  loadClassTeacher(className);
+  // 設定實際日期與節次（若有）
+  const now = new Date();
+  if (dateValue) {
+    dateValue.textContent = now.toLocaleDateString('zh-Hant-TW', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).replace(/\//g, ' / ');
+  }
+  if (sessionLabel) {
+    const hour = now.getHours();
+    sessionLabel.textContent = hour < 9 ? '早自習 / 第一節前' : hour < 12 ? '上午 / 上課中' : hour < 18 ? '下午 / 課間' : '傍晚 / 課後';
+  }
 
   // 初始化第一個填寫區塊
   initializeFirstAttendanceRow();
 }
 
-async function loadClassTeacher(className) {
-  const teacherNote = document.getElementById('card-note-1');
-  const token = localStorage.getItem('authToken');
-
-  if (!teacherNote) {
-    return;
-  }
-
-  if (!className || className === '未知班級') {
-    teacherNote.textContent = '導師：查無班級資訊';
-    return;
-  }
-
-  teacherNote.textContent = '導師：載入中...';
-
-  try {
-    const response = await fetch(`${API_BASE}/attendance/teacher?className=${encodeURIComponent(className)}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    const payload = await response.json();
-    if (!response.ok || !payload.success) {
-      throw new Error(payload.error || '無法載入導師資訊');
-    }
-
-    const teacherName = payload.data?.name || '';
-    teacherNote.textContent = teacherName ? `導師：${teacherName}` : '導師：查無導師資料';
-  } catch (error) {
-    teacherNote.textContent = '導師：查無導師資料';
-  }
-}
 
 /**
  * 初始化第一個填寫區塊

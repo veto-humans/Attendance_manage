@@ -51,7 +51,7 @@ exports.login = async (req, res) => {
     name: user.name,
     className: user.className,
     role: user.role,
-    managedGrade: user.managedGrade
+    managedGrade: user.managedGrade || ''
   };
 
   if (typeof studentCount !== 'undefined') {
@@ -71,7 +71,7 @@ exports.login = async (req, res) => {
     name: user.name,
     className: user.className,
     role: user.role,
-    managedGrade: user.managedGrade
+    managedGrade: user.managedGrade || ''
   };
   if (typeof studentCount !== 'undefined') {
     responseUser.studentCount = studentCount;

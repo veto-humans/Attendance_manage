@@ -24,11 +24,11 @@ const createAttendance = async (data) => {
     teacherConfirmed: false,
     teacherConfirmedBy: null,
     teacherConfirmedAt: null,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
     updatedAt: admin.firestore.FieldValue.serverTimestamp()
   };
 
   if (querySnapshot.empty) {
-    record.createdAt = admin.firestore.FieldValue.serverTimestamp();
     const docRef = await db.collection(COLLECTION_NAME).add(record);
 
     return {

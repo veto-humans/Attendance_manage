@@ -8,11 +8,12 @@ exports.getManagedGradeClasses = async (req, res) => {
     return res.status(403).json({ success: false, error: 'Military Instructor 權限不足。' });
   }
 
-  if (!user.managedGrade) {
+  const managedGrade = String(user.managedGrade || '').trim();
+  if (!managedGrade) {
     return res.status(400).json({ success: false, error: '未設定管理年段。' });
   }
 
-  const response = await getUsersByGrade(user.managedGrade);
+  const response = await getUsersByGrade(managedGrade);
   if (!response.success) {
     return res.status(500).json({ success: false, error: response.error || '無法讀取管理年段班級資料。' });
   }
