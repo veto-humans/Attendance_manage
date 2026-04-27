@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+  <title>教師確認頁</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index,follow">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/manager.css" />
+  <script src="/teacher.js" defer></script>
+</head>
+
+<body class="gjs-t-body font-body page-body">
+  <div class="page-shell">
+    <header class="top-header">
+      <div class="header-container">
+        <div class="brand-block">
+          <div class="brand-icon">
+            <img src="https://api.iconify.design/lucide-shield.svg?color=%231d4ed8" alt="教師確認圖示" class="brand-icon-image" />
+          </div>
+          <div class="brand-text">
+            <p class="header-eyebrow">Attendance Dashboard</p>
+            <h1 class="gjs-t-h1 font-heading header-title">教師確認頁面</h1>
+          </div>
+        </div>
+        <div class="header-actions">
+          <a href="/" class="gjs-t-link home-link">返回首頁</a>
+          <button type="button" class="secondary-button" id="logout-button">登出</button>
+        </div>
+      </div>
+    </header>
+    <main class="main-content">
+      <section class="dashboard-section">
+        <div class="glass-card soft-shadow hero-card">
+          <div class="hero-content">
+            <div class="hero-top">
+              <div class="hero-intro">
+                <div class="status-pills">
+                  <span class="status-pill">教師確認</span>
+                  <span class="status-pill">完成前請確認學生填報</span>
+                </div>
+                <div class="hero-title-group">
+                  <h2 class="font-heading hero-title">請檢視本班出缺席資料並完成確認</h2>
+                  <p class="hero-description">若學生已完成填報，請確認缺席資料無誤後點擊「確認出缺席」。若尚未填報，請提醒學生完成送出。</p>
+                </div>
+              </div>
+              <div class="hero-side-note">
+                <span class="side-note-label">班級</span>
+                <strong class="font-heading side-note-date" id="teacher-class-name">---</strong>
+                <span class="side-note-subtext" id="teacher-status-text">載入中...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <section class="glass-card soft-shadow attendance-form-panel">
+            <div class="panel-header">
+              <div class="panel-intro">
+                <h2 class="gjs-t-h2 font-heading panel-title">最新填報紀錄</h2>
+                <p class="panel-subtitle">以下為該班級最新一筆學生填報資料，若內容正確請按下確認。</p>
+              </div>
+              <div class="panel-actions">
+                <button type="button" class="import-button" id="refresh-button">重新整理</button>
+              </div>
+            </div>
+            <div id="teacher-content-area">
+              <div class="content-message" id="teacher-message">正在載入您的班級資料...</div>
+            </div>
+          </section>
+          <aside class="sidebar-panel">
+            <div class="glass-card quick-stats-card">
+              <h3 class="font-heading sidebar-title">教師確認狀態</h3>
+              <div class="stats-list" id="teacher-confirmation-summary">
+                <div class="stat-item">
+                  <span class="stat-label">填報狀態</span>
+                  <strong class="font-heading stat-value" id="teacher-status-value">-</strong>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">確認時間</span>
+                  <strong class="font-heading stat-value" id="teacher-confirmed-at">-</strong>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">確認人</span>
+                  <strong class="font-heading stat-value" id="teacher-confirmed-by">-</strong>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <footer class="footer">
+      <div class="footer-container">
+        <p>出缺席填報系統｜教師確認頁面</p>
+        <div class="footer-links">
+            <span>問題返回：s122222@yfms.tyc.edu.tw</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+</body>
+
+</html>

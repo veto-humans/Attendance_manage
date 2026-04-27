@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+  <head>
+    <title>教官頁面</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index,follow">
+    <meta name="generator" content="GrapesJS Studio">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/manager.css" />
+    <script src="/manager.js" defer></script>
+  </head>
+
+  <body class="gjs-t-body font-body page-body" id="i5ysik">
+    <div class="page-shell" id="iti8la">
+      <header class="top-header" id="idi4rl">
+        <div class="header-container" id="iidz1q">
+          <div class="brand-block" id="i0crox">
+            <div class="brand-icon" id="ivq0wo">
+              <img src="https://api.iconify.design/lucide-shield-check.svg?color=%231d4ed8" alt="管理圖示" class="brand-icon-image" id="ia1wyr" />
+            </div>
+            <div class="brand-text" id="ivuts5">
+              <p class="header-eyebrow" id="il276v">Attendance Dashboard</p>
+              <h1 class="gjs-t-h1 font-heading header-title" id="ilwdfw">教官頁面</h1>
+            </div>
+          </div>
+          <div class="header-actions" id="iyl5z4">
+            <a href="/" class="gjs-t-link home-link" id="i2nyrz">返回首頁</a>
+          </div>
+        </div>
+      </header>
+      <main class="main-content" id="izab6i">
+        <section class="dashboard-section" id="ifnkye">
+          <div class="glass-card soft-shadow hero-card" id="ir1oeu">
+            <div class="hero-content" id="ivuto6">
+              <div class="hero-top" id="ix8998">
+                <div class="hero-intro" id="ioe1c4">
+                  <div class="status-pills" id="ibkebn">
+                    <span class="status-pill" id="i4zkhi">全校班級彙整</span>
+                    <span class="status-pill" id="i2n10r">即時查看缺席名單</span>
+                  </div>
+                  <div class="hero-title-group" id="il9vfa">
+                    <h2 class="font-heading hero-title" id="iu8ywm">當前年段出缺席管理總覽</h2>
+                    <p class="hero-description" id="itdcm9">此頁面提供管理者快速查看所有班級的填報結果。每個班級皆列出應到、實到與缺席人數，並完整顯示缺席學生座號與請假事由，方便學務處、導師與行政單位進行交叉核對與追蹤。</p>
+                  </div>
+                </div>
+                <div class="hero-side-note" id="iyu805">
+                  <span class="side-note-label" id="i89bqx">查詢日期</span>
+                  <strong class="font-heading side-note-date" id="iak2fo">2026 / 01 / 22</strong>
+                  <span class="side-note-subtext" id="iz56oh">更新時間 08:45</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="iqs43s" class="summary-grid">
+            <div id="iw9bpt" class="glass-card summary-card">
+              <div id="i2lvv6" class="summary-header">
+                <img src="https://api.iconify.design/lucide-school.svg?color=%231d4ed8" alt="班級圖示" id="i4l8zf" class="summary-icon" />
+                <span id="ihej75" class="summary-label">已填報班級</span>
+              </div>
+              <strong id="ibpj1z" class="font-heading summary-value">18</strong>
+              <p id="i5cpiu" class="summary-note">主管班級班級</p>
+            </div>
+            <div id="it6u1i" class="glass-card summary-card">
+              <div id="i0ohvf" class="summary-header">
+                <img src="https://api.iconify.design/lucide-user-x.svg?color=%23dc2626" alt="缺席圖示" id="iuqm83" class="summary-icon" />
+                <span id="i5y4lb" class="summary-label">總缺席人次</span>
+              </div>
+              <strong id="il9qbl" class="font-heading summary-value">27</strong>
+              <p id="ivjzhg" class="summary-note">含病假、事假、公假、曠課、遲到與早退</p>
+            </div>
+            <div id="iughjj" class="glass-card summary-card">
+              <div id="ixqmpg" class="summary-header">
+                <img src="https://api.iconify.design/lucide-clock-3.svg?color=%23d97706" alt="待確認圖示" id="i342tf" class="summary-icon" />
+                <span id="ibek7l" class="summary-label">待確認班級</span>
+              </div>
+              <strong id="ix56n3" class="font-heading summary-value">2</strong>
+              <p id="irtu01" class="summary-note">未填報或尚未補齊缺席</p>
+            </div>
+          </div>
+          <section class="content-grid" id="iuiawu">
+            <div class="class-list-section" id="i3rqkf">
+              <div id="manager-class-list"></div>
+              <div id="manager-empty-state" class="empty-state"></div>
+            </div>
+            <aside class="sidebar-panel" id="i9podn">
+              <div class="glass-card quick-stats-card" id="i04ny1">
+                <h3 class="font-heading sidebar-title" id="ijxtxq">缺席類型統計</h3>
+                <div class="stats-list" id="ifbtc8">
+                  <div class="stat-item" id="iuu9kg">
+                    <span class="stat-label" id="iila9m">病假</span>
+                    <strong class="font-heading stat-value" id="inpfeg">0</strong>
+                  </div>
+                  <div class="stat-item" id="iz94oj">
+                    <span class="stat-label" id="isj7ye">事假</span>
+                    <strong class="font-heading stat-value" id="iwteii">0</strong>
+                  </div>
+                  <div class="stat-item" id="incuxa">
+                    <span class="stat-label" id="i3p5m1">公假</span>
+                    <strong class="font-heading stat-value" id="ig9efd">0</strong>
+                  </div>
+                  <div class="stat-item" id="ilnrhr">
+                    <span class="stat-label" id="i4ob5i">曠課</span>
+                    <strong class="font-heading stat-value" id="ihg0lk">0</strong>
+                  </div>
+                  <div class="stat-item" id="i7evqq">
+                    <span class="stat-label" id="ilgxrf">遲到</span>
+                    <strong class="font-heading stat-value" id="i96u7q">0</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="glass-card contact-card" id="i5sff8">
+                <h3 class="font-heading sidebar-title" id="i0mksu">管理聯繫</h3>
+                <div class="contact-list" id="it6p94">
+                  <div class="contact-item" id="ipvdba">
+                    <img src="https://api.iconify.design/lucide-mail.svg?color=%2364748b" alt="電子郵件" class="contact-icon" id="iom665" />
+                    <div class="contact-text" id="iko0tc">
+                      <span class="contact-label" id="ijsewh">系統回報</span>
+                      <a href="mailto:s122222@yfms.tyc.edu.tw" class="gjs-t-link contact-link" id="i3grxz">s122222@yfms.tyc.edu.tw</a>
+                    </div>
+                  </div>
+                  <div class="contact-item" id="ia9vgx">
+                    <img src="https://api.iconify.design/lucide-phone.svg?color=%2364748b" alt="電話" class="contact-icon" id="iv7tjg" />
+                    <div class="contact-text" id="ibwmor">
+                      <span class="contact-label" id="idcrm4">校內分機</span>
+                      <span class="contact-value" id="iytqe1">#203 學務處</span>
+                    </div>
+                  </div>
+                  <div class="contact-item" id="iwiypl">
+                    <img src="https://api.iconify.design/lucide-file-text.svg?color=%2364748b" alt="規範" class="contact-icon" id="ify6hj" />
+                    <div class="contact-text" id="iznjrj">
+                      <span class="contact-label" id="iu9pzj">填報規範</span>
+                      <a href="#" class="gjs-t-link contact-link" id="iw1lca">查看缺席事由代碼說明</a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </section>
+        </section>
+      </main>
+      <footer class="footer" id="ixnqx3">
+        <div class="footer-container" id="i66p9g">
+          <p id="invcjw">出缺席填報系統｜教官頁面</p>
+          <div class="footer-links" id="i40zmp">
+            <span id="igu74p">問題返回：s122222@yfms.tyc.edu.tw</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  </body>
+
+</html>

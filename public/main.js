@@ -615,7 +615,7 @@ function checkFormVisibility() {
  * 處理出缺席提交
  * @param {Event} event - 點擊事件
  */
-function handleSubmitAttendance(event) {
+async function handleSubmitAttendance(event) {
   event.preventDefault();
 
   const attendanceData = collectAttendanceData();
@@ -625,23 +625,61 @@ function handleSubmitAttendance(event) {
     return;
   }
 
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    alert('您尚未登入，請重新登入後再提交。');
+    window.location.href = './home.html';
+    return;
+  }
+
   // 顯示加載狀態
   const submitButton = document.getElementById('submit-button');
-  const originalText = submitButton.textContent;
-  submitButton.disabled = true;
-  submitButton.textContent = '提交中...';
+  const originalText = submitButton ? submitButton.textContent : '提交中...';
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = '提交中...';
+  }
 
-  // 發送數據到後端
-  setTimeout(() => {
-    console.log('提交出缺席數據:', attendanceData);
+  try {
+    const response = await fetch(`${API_BASE}/attendance`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(attendanceData)
+    });
+
+    const responseBody = await response.text();
+    let payload;
+
+    if (!responseBody) {
+      throw new Error(`伺服器未回傳資料（狀態碼 ${response.status}）`);
+    }
+
+    try {
+      payload = JSON.parse(responseBody);
+    } catch (parseError) {
+      throw new Error(`伺服器回傳非 JSON：${responseBody}`);
+    }
+
+    if (!response.ok || !payload.success) {
+      throw new Error(payload.error || '提交出缺席資料失敗，請稍後再試。');
+    }
+
     alert('出缺席記錄已成功提交');
-    
-    // 清除草稿
     clearFormDraft();
-    
-    submitButton.disabled = false;
-    submitButton.textContent = originalText;
-  }, 1000);
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = originalText;
+    }
+  } catch (error) {
+    alert(error.message || '提交出缺席資料失敗，請稍後再試。');
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = originalText;
+    }
+  }
 }
 
 /**

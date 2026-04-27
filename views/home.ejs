@@ -1,21 +1,67 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
+
   <head>
+    <title>登錄頁面</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title><%= title %></title>
-    <link rel="stylesheet" href="/dashboard.css" />
+    <meta name="robots" content="index,follow">
+    <meta name="generator" content="GrapesJS Studio">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/home.css" />
+    <script src="/main.js" defer></script>
   </head>
-  <body>
-    <main class="main-content" style="padding: 2rem;">
-      <section style="max-width: 720px; margin: 0 auto;">
-        <h1 class="font-heading"><%= title %></h1>
-        <p style="margin-top: 1rem; font-size: 1.05rem; color: #475569;"><%= description %></p>
-        <div style="margin-top: 2rem; display: grid; gap: 1rem;">
-          <a href="/home.html" class="gjs-t-button" style="padding: 0.9rem 1.2rem; display: inline-block; text-align: center; background:#2563eb; color:#fff; border-radius: 0.75rem; text-decoration: none;">前往靜態首頁</a>
-          <a href="/dashboard.html" class="gjs-t-button" style="padding: 0.9rem 1.2rem; display: inline-block; text-align: center; background:#10b981; color:#fff; border-radius: 0.75rem; text-decoration: none;">前往 Dashboard</a>
+
+  <body class="gjs-t-body font-body cls-lq8aly">
+    <main class="login-page" id="ielgh">
+      <section class="login-section" id="iqs15">
+        <div class="login-layout" id="iy5qg">
+          <div class="login-form-panel" id="inkyo">
+            <div class="form-header" id="ilm4i">
+              <h2 class="gjs-t-h2 font-heading form-title" id="i6m4q">帳戶登錄</h2>
+              <p class="form-subtitle" id="i8qqi">
+                請輸入您的帳號資訊以繼續。
+              </p>
+            </div>
+            <form method="post" action="#" class="login-form" id="iq4ck">
+              <div class="input-group" id="ilb2m">
+                <label for="email" class="input-label" id="iabke">電子郵件</label>
+                <div class="input-wrapper" id="iaqqa">
+                  <img src="https://api.iconify.design/lucide-mail.svg?color=%2364748b" alt="電子郵件" class="input-icon" id="i2oc4" />
+                  <input type="email" id="email" name="email" placeholder="you@yfms.tyc.edu.tw" aria-label="電子郵件" class="email-input" />
+                </div>
+              </div>
+              <div class="input-group" id="i1vfi">
+                <label for="password" class="input-label" id="icrty">密碼</label>
+                <div class="input-wrapper" id="i6vvl">
+                  <img src="https://api.iconify.design/lucide-key-round.svg?color=%2364748b" alt="密碼" class="input-icon" id="i74ue" />
+                  <input type="password" id="password" name="password" placeholder="請輸入密碼" aria-label="密碼" class="password-input" />
+                </div>
+              </div>
+              <div class="form-options" id="imjsa">
+                <label class="checkbox-label" id="iazyl">
+                  <input type="checkbox" aria-label="記住我" class="remember-checkbox" id="iv57w" />
+                  <span class="checkbox-text" id="i890c">記住我</span>
+                </label>
+                <a href="#" class="gjs-t-link forgot-password-link" id="imv3h">
+                  忘記密碼？
+                </a>
+              </div>
+              <button type="submit" class="gjs-t-button submit-button" id="iuuma">
+                登錄
+              </button>
+            </form>
+          </div>
         </div>
       </section>
+      <footer class="footer" id="iirls">
+        <div class="footer-container" id="iaxy1">
+          <p class="company-name" id="ieh9o">問題回報：s122222@yfms.tyc.edu.tw</p>
+        </div>
+      </footer>
     </main>
   </body>
+
 </html>
