@@ -40,7 +40,7 @@ exports.getManagedGradeClasses = async (req, res) => {
       const absentCount = submitted ? Math.max(0, teacher.studentCount - attendanceCount) : null;
 
       return {
-        className: teacher.className,
+        className: String(teacher.className || ''),
         teacherName: teacher.name,
         studentCount: teacher.studentCount,
         submitted,
@@ -67,7 +67,11 @@ exports.getManagedGradeClasses = async (req, res) => {
     }
   }));
 
-  const sortedClasses = classes.sort((a, b) => a.className.localeCompare(b.className, undefined, { numeric: true }));
+  const sortedClasses = classes.sort((a, b) => {
+    const classA = String(a.className || '');
+    const classB = String(b.className || '');
+    return classA.localeCompare(classB, undefined, { numeric: true });
+  });
   const totalAbsence = sortedClasses.reduce((sum, item) => sum + ((item.teacherConfirmed && item.absentCount) ? item.absentCount : 0), 0);
   const pendingCount = sortedClasses.filter((item) => !item.teacherConfirmed).length;
 
