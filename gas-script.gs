@@ -70,7 +70,11 @@ function getSheet(sheetName) {
 function normalizeHeaderMap(headerRow) {
   return headerRow.reduce((map, value, index) => {
     if (typeof value === 'string') {
-      map[value.trim().toLowerCase()] = index;
+      const key = value
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, '');
+      map[key] = index;
     }
     return map;
   }, {});

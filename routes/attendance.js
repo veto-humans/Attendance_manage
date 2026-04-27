@@ -4,6 +4,7 @@ const {
   submitAttendance,
   getAttendance,
   getClassAttendance,
+  getClassTeacher,
   confirmAttendance
 } = require('../controllers/attendanceController');
 const auth = require('../middleware/auth');
