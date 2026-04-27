@@ -1,30 +1,37 @@
 const admin = require('firebase-admin');
 
-const initializeFirebase = () => {
-  // Load Firebase credentials from .env
+const getServiceAccount = () => {
   const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT;
-
   if (!serviceAccountJson) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT is not configured in .env');
   }
 
-  let serviceAccount;
   try {
-    serviceAccount = JSON.parse(serviceAccountJson);
+    return JSON.parse(serviceAccountJson);
   } catch (error) {
     throw new Error('FIREBASE_SERVICE_ACCOUNT is not valid JSON');
   }
+};
 
+const initializeFirebase = () => {
   if (!admin.apps.length) {
+    const serviceAccount = getServiceAccount();
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     });
+    console.log('Firebase initialized');
   }
-
-  const db = admin.firestore();
-  console.log('Firebase initialized');
-
-  return db;
+  return admin;
 };
 
-module.exports = initializeFirebase;
+const getFirestore = () => {
+  if (!admin.apps.length) {
+    initializeFirebase();
+  }
+  return admin.firestore();
+};
+
+module.exports = {
+  initializeFirebase,
+  getFirestore
+};

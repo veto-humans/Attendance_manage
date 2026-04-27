@@ -1,5 +1,5 @@
 const app = require('./app');
-const initializeFirebase = require('./config/firebase');
+const { initializeFirebase } = require('./config/firebase');
 
 const requiredEnv = ['JWT_SECRET', 'GAS_WEBAPP_URL', 'GAS_API_KEY', 'FIREBASE_SERVICE_ACCOUNT'];
 const missingEnv = requiredEnv.filter((key) => !process.env[key]);

@@ -1,4 +1,5 @@
 const admin = require('firebase-admin');
+const { getFirestore } = require('../config/firebase');
 
 const COLLECTION_NAME = 'attendance';
 
@@ -8,7 +9,7 @@ const COLLECTION_NAME = 'attendance';
  * @returns {Promise<Object>} Created record with ID
  */
 const createAttendance = async (data) => {
-  const db = admin.firestore();
+  const db = getFirestore();
 
   // Firestore will automatically create the collection when a document is written.
   // Use a unique record per user/class combination so repeated submissions overwrite.
@@ -56,7 +57,7 @@ const createAttendance = async (data) => {
 };
 
 const confirmLatestAttendanceByClassName = async (className, confirmer) => {
-  const db = admin.firestore();
+  const db = getFirestore();
   const querySnapshot = await db.collection(COLLECTION_NAME)
     .where('className', '==', className)
     .orderBy('createdAt', 'desc')
@@ -94,7 +95,7 @@ const confirmLatestAttendanceByClassName = async (className, confirmer) => {
  * @returns {Promise<Array>} Attendance records
  */
 const getAttendanceByEmail = async (email) => {
-  const db = admin.firestore();
+  const db = getFirestore();
   const querySnapshot = await db.collection(COLLECTION_NAME)
     .where('email', '==', email)
     .orderBy('createdAt', 'desc')
@@ -121,7 +122,7 @@ const getAttendanceByEmail = async (email) => {
  * @returns {Promise<Array>} Attendance records
  */
 const getAttendanceByClassName = async (className) => {
-  const db = admin.firestore();
+  const db = getFirestore();
   const querySnapshot = await db.collection(COLLECTION_NAME)
     .where('className', '==', className)
     .orderBy('createdAt', 'desc')
@@ -148,7 +149,7 @@ const getAttendanceByClassName = async (className) => {
  * @returns {Promise<Object|null>} Latest attendance record
  */
 const getLatestAttendanceByClassName = async (className) => {
-  const db = admin.firestore();
+  const db = getFirestore();
   const querySnapshot = await db.collection(COLLECTION_NAME)
     .where('className', '==', className)
     .orderBy('createdAt', 'desc')
