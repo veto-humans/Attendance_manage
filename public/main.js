@@ -384,10 +384,10 @@ function initializeWithClassInfo() {
       day: '2-digit'
     }).replace(/\//g, ' / ');
   }
-  if (sessionLabel) {
-    const hour = now.getHours();
-    sessionLabel.textContent = hour < 9 ? '早自習 / 第一節前' : hour < 12 ? '上午 / 上課中' : hour < 18 ? '下午 / 課間' : '傍晚 / 課後';
-  }
+  // if (sessionLabel) {
+  //   const hour = now.getHours();
+  //   sessionLabel.textContent = hour < 9 ? '早自習 / 第一節前' : hour < 12 ? '上午 / 上課中' : hour < 18 ? '下午 / 課間' : '傍晚 / 課後';
+  // }
 
   // 初始化第一個填寫區塊
   initializeFirstAttendanceRow();
@@ -743,10 +743,10 @@ function validateAttendanceData(data) {
     return false;
   }
 
-  if (data.records.length === 0) {
-    alert('請輸入至少一筆缺席記錄或確認無缺席');
-    return false;
-  }
+  // if (data.records.length === 0) {
+  //   alert('請輸入至少一筆缺席記錄或確認無缺席');
+  //   return false;
+  // }
 
   return true;
 }
