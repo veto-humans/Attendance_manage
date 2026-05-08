@@ -31,21 +31,48 @@ const normalizeManagedGrade = (grade) => {
   return numericMatch ? numericMatch[0] : value;
 };
 
-const buildTokenAndResponse = async (user) => {
+const normalizeRole = (role) => {
+  if (!role) return 'teacher';
+  const normalizedRole = String(role).trim().toLowerCase();
+  
+  // 統一管理員角色名稱
+  if (normalizedRole === 'manager' || normalizedRole === 'military instructor' || normalizedRole === 'military_instructor') {
+    return 'Military Instructor';
+  }
+  
+  return role; // 保持原樣，包括 'teacher', 'secretary' 等
+};
+
+const buildTokenAndResponse = async (user, source = 'gas') => {
   const normalizedManagedGrade = normalizeManagedGrade(user.managedGrade);
+  const normalizedRole = normalizeRole(user.role);
   let studentCount = user.studentCount;
 
+  // 根據用戶來源決定classInfo的獲取優先級
   if ((!studentCount || Number(studentCount) === 0) && user.className) {
-    try {
-      const classInfo = await getClassInfoFromFirestore(user.className);
-      if (classInfo) {
-        studentCount = classInfo.studentCount || 0;
+    if (source === 'firestore') {
+      // Google登錄用戶：優先從Firestore獲取，fallback到GAS
+      try {
+        const classInfo = await getClassInfoFromFirestore(user.className);
+        if (classInfo) {
+          studentCount = classInfo.studentCount || 0;
+        }
+      } catch (error) {
+        studentCount = user.studentCount || 0;
       }
-    } catch (error) {
-      studentCount = user.studentCount || 0;
-    }
 
-    if ((!studentCount || Number(studentCount) === 0) && user.className) {
+      if ((!studentCount || Number(studentCount) === 0) && user.className) {
+        try {
+          const classInfo = await getClassInfoFromGas(user.className);
+          if (classInfo && classInfo.success && classInfo.data) {
+            studentCount = classInfo.data.studentCount || 0;
+          }
+        } catch (error) {
+          studentCount = user.studentCount || 0;
+        }
+      }
+    } else {
+      // 帳密登錄用戶：優先從GAS獲取，fallback到Firestore
       try {
         const classInfo = await getClassInfoFromGas(user.className);
         if (classInfo && classInfo.success && classInfo.data) {
@@ -54,6 +81,17 @@ const buildTokenAndResponse = async (user) => {
       } catch (error) {
         studentCount = user.studentCount || 0;
       }
+
+      if ((!studentCount || Number(studentCount) === 0) && user.className) {
+        try {
+          const classInfo = await getClassInfoFromFirestore(user.className);
+          if (classInfo) {
+            studentCount = classInfo.studentCount || 0;
+          }
+        } catch (error) {
+          studentCount = user.studentCount || 0;
+        }
+      }
     }
   }
 
@@ -61,7 +99,7 @@ const buildTokenAndResponse = async (user) => {
     email: user.email,
     name: user.name,
     className: user.className,
-    role: user.role,
+    role: normalizedRole,
     managedGrade: normalizedManagedGrade
   };
 
@@ -75,7 +113,7 @@ const buildTokenAndResponse = async (user) => {
     email: user.email,
     name: user.name,
     className: user.className,
-    role: user.role,
+    role: normalizedRole,
     managedGrade: normalizedManagedGrade,
     studentCount: Number(studentCount) || 0
   };
@@ -108,7 +146,7 @@ exports.login = async (req, res) => {
     }
 
     try {
-      const { token, responseUser } = await buildTokenAndResponse(user);
+      const { token, responseUser } = await buildTokenAndResponse(user, 'firestore');
       return res.json({ success: true, token, user: responseUser });
     } catch (error) {
       console.error('Error issuing token:', error);
@@ -137,7 +175,7 @@ exports.login = async (req, res) => {
   }
 
   try {
-    const { token, responseUser } = await buildTokenAndResponse(user);
+    const { token, responseUser } = await buildTokenAndResponse(user, 'gas');
     return res.json({ success: true, token, user: responseUser });
   } catch (error) {
     console.error('Error issuing token:', error);
