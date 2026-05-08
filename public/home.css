@@ -351,6 +351,37 @@ video {
   border-color: rgb(147 197 253 / 1);
 }
 
+.login-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.remember-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: rgb(71 85 105 / 1);
+  cursor: pointer;
+}
+
+.remember-label input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid rgb(203 213 225 / 1);
+  accent-color: rgb(37 99 235 / 1);
+}
+
+.input-error {
+  display: block;
+  color: #ef4444;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
 .input-icon {
   height: 1.25rem;
   width: 1.25rem;
