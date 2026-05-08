@@ -60,6 +60,10 @@ exports.getUserByEmail = async (email) => {
   return callGas('getUserByEmail', { email });
 };
 
+exports.getGoogleUserByEmail = async (email) => {
+  return callGas('getGoogleUserByEmail', { email });
+};
+
 exports.createUser = async (payload) => {
   return callGas('createUser', payload);
 };
@@ -74,6 +78,18 @@ exports.getTeacherByClass = async (className) => {
 
 exports.getClassInfo = async (className) => {
   return callGas('getClassInfo', { className });
+};
+
+exports.getAllUsers = async () => {
+  return callGas('getAllUsers');
+};
+
+exports.getAllGoogleUsers = async () => {
+  return callGas('getAllGoogleUsers');
+};
+
+exports.getAllClasses = async () => {
+  return callGas('getAllClasses');
 };
 
 exports.upsertClass = async (className, studentCount) => {

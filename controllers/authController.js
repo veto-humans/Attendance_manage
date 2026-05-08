@@ -1,5 +1,16 @@
 const jwt = require('jsonwebtoken');
-const { getUserByEmail, createUser, getClassInfo } = require('../config/gas');
+const admin = require('firebase-admin');
+const { getAuth } = require('../config/firebase');
+const {
+  getUserByEmail: getUserByEmailFromFirestore,
+  createUser: createFirestoreUser,
+  getClassInfo: getClassInfoFromFirestore
+} = require('../models/User');
+const { 
+  getUserByEmail: getUserByEmailFromGas,
+  getGoogleUserByEmail: getGoogleUserByEmailFromGas,
+  getClassInfo: getClassInfoFromGas
+} = require('../config/gas');
 
 const signToken = (payload) => {
   if (!process.env.JWT_SECRET) {
@@ -20,45 +31,31 @@ const normalizeManagedGrade = (grade) => {
   return numericMatch ? numericMatch[0] : value;
 };
 
-exports.login = async (req, res) => {
-  const { email, password } = req.body;
+const buildTokenAndResponse = async (user) => {
+  const normalizedManagedGrade = normalizeManagedGrade(user.managedGrade);
+  let studentCount = user.studentCount;
 
-  if (!email || !password) {
-    return res.status(400).json({ success: false, error: 'Email and password are required.' });
-  }
-
-  let response;
-  try {
-    response = await getUserByEmail(email);
-  } catch (error) {
-    return res.status(500).json({ success: false, error: `Login service error: ${error.message}` });
-  }
-
-  if (!response || !response.success || !response.data) {
-    const errorMessage = response && response.error ? response.error : 'Invalid email or password.';
-    return res.status(401).json({ success: false, error: errorMessage });
-  }
-
-  const user = response.data;
-  if (user.password !== password) {
-    return res.status(401).json({ success: false, error: 'Invalid email or password.' });
-  }
-
-  let studentCount;
-  if (user.role === 'student' && user.className) {
+  if ((!studentCount || Number(studentCount) === 0) && user.className) {
     try {
-      const classInfo = await getClassInfo(user.className);
-      if (classInfo && classInfo.success && classInfo.data) {
-        studentCount = classInfo.data.studentCount || 0;
-      } else {
-        studentCount = 0;
+      const classInfo = await getClassInfoFromFirestore(user.className);
+      if (classInfo) {
+        studentCount = classInfo.studentCount || 0;
       }
     } catch (error) {
-      studentCount = 0;
+      studentCount = user.studentCount || 0;
+    }
+
+    if ((!studentCount || Number(studentCount) === 0) && user.className) {
+      try {
+        const classInfo = await getClassInfoFromGas(user.className);
+        if (classInfo && classInfo.success && classInfo.data) {
+          studentCount = classInfo.data.studentCount || 0;
+        }
+      } catch (error) {
+        studentCount = user.studentCount || 0;
+      }
     }
   }
-
-  const normalizedManagedGrade = normalizeManagedGrade(user.managedGrade);
 
   const tokenPayload = {
     email: user.email,
@@ -69,85 +66,83 @@ exports.login = async (req, res) => {
   };
 
   if (typeof studentCount !== 'undefined') {
-    tokenPayload.studentCount = studentCount;
+    tokenPayload.studentCount = Number(studentCount) || 0;
   }
 
-  let token;
-  try {
-    token = signToken(tokenPayload);
-  } catch (error) {
-    console.error('JWT sign error:', error);
-    return res.status(500).json({ success: false, error: error.message || 'Server configuration error.' });
-  }
+  const token = signToken(tokenPayload);
 
   const responseUser = {
     email: user.email,
     name: user.name,
     className: user.className,
     role: user.role,
-    managedGrade: normalizedManagedGrade
+    managedGrade: normalizedManagedGrade,
+    studentCount: Number(studentCount) || 0
   };
-  if (typeof studentCount !== 'undefined') {
-    responseUser.studentCount = studentCount;
-  }
 
-  res.json({
-    success: true,
-    token,
-    user: responseUser
-  });
+  return { token, responseUser };
 };
 
-exports.register = async (req, res) => {
-  const { email, password, name, className, studentCount, role, managedGrade } = req.body;
-  const normalizedManagedGrade = normalizeManagedGrade(managedGrade);
+exports.login = async (req, res) => {
+  const { idToken, email, password } = req.body;
 
-  if (!email || !password || !name) {
-    return res.status(400).json({ success: false, error: 'Name, email, and password are required.' });
+  // Google OAuth 登錄流程
+  if (idToken) {
+    let decoded;
+    try {
+      decoded = await getAuth().verifyIdToken(idToken);
+    } catch (error) {
+      return res.status(401).json({ success: false, error: 'Invalid Google authentication token.' });
+    }
+
+    const googleEmail = decoded.email;
+    if (!googleEmail) {
+      return res.status(401).json({ success: false, error: 'Google account email is required.' });
+    }
+
+    // 查詢 Firestore users 集合（存放 Google 登入用戶）
+    let user = await getUserByEmailFromFirestore(googleEmail);
+
+    if (!user) {
+      return res.status(403).json({ success: false, error: '使用者未找到或無系統使用權限。' });
+    }
+
+    try {
+      const { token, responseUser } = await buildTokenAndResponse(user);
+      return res.json({ success: true, token, user: responseUser });
+    } catch (error) {
+      console.error('Error issuing token:', error);
+      return res.status(500).json({ success: false, error: 'Unable to create session token.' });
+    }
   }
 
-  let response;
+  // 帳密登錄流程
+  if (!email || !password) {
+    return res.status(400).json({ success: false, error: 'Email and password are required.' });
+  }
+
+  // 從 GAS API（Google Sheet Users 表）驗證
+  const gasResponse = await getUserByEmailFromGas(email);
+  if (!gasResponse || !gasResponse.success) {
+    return res.status(500).json({ success: false, error: gasResponse?.error || 'Authentication service error' });
+  }
+
+  const user = gasResponse.data;
+  if (!user || !user.password) {
+    return res.status(401).json({ success: false, error: 'Invalid email or password.' });
+  }
+
+  if (user.password !== password) {
+    return res.status(401).json({ success: false, error: 'Invalid email or password.' });
+  }
+
   try {
-    response = await createUser({ email, password, name, className, studentCount, role, managedGrade: normalizedManagedGrade });
+    const { token, responseUser } = await buildTokenAndResponse(user);
+    return res.json({ success: true, token, user: responseUser });
   } catch (error) {
-    return res.status(500).json({ success: false, error: `Register service error: ${error.message}` });
+    console.error('Error issuing token:', error);
+    return res.status(500).json({ success: false, error: 'Unable to create session token.' });
   }
-
-  if (!response || !response.success) {
-    const status = response && response.error && response.error === 'User already exists' ? 400 : 500;
-    return res.status(status).json(response || { success: false, error: 'Registration failed.' });
-  }
-
-  const responseUser = {
-    email,
-    name,
-    className,
-    role: role || 'teacher',
-    managedGrade: normalizedManagedGrade
-  };
-  if (role === 'student') {
-    responseUser.studentCount = studentCount || 0;
-  }
-
-  let token;
-  try {
-    token = signToken({
-      email,
-      name,
-      className,
-      role: role || 'teacher',
-      managedGrade: normalizedManagedGrade
-    });
-  } catch (error) {
-    console.error('JWT sign error:', error);
-    return res.status(500).json({ success: false, error: error.message || 'Server configuration error.' });
-  }
-
-  res.json({
-    success: true,
-    token,
-    user: responseUser
-  });
 };
 
 exports.getProfile = async (req, res) => {

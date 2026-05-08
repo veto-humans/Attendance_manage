@@ -31,7 +31,15 @@ const getFirestore = () => {
   return admin.firestore();
 };
 
+const getAuth = () => {
+  if (!admin.apps.length) {
+    initializeFirebase();
+  }
+  return admin.auth();
+};
+
 module.exports = {
   initializeFirebase,
-  getFirestore
+  getFirestore,
+  getAuth
 };

@@ -16,7 +16,59 @@ function initManagerPage() {
   }
 
   setDateLabels();
+  attachSyncButton();
   loadManagerClasses();
+}
+
+function attachSyncButton() {
+  const syncButton = document.getElementById('sync-firestore-button');
+  if (!syncButton) return;
+
+  syncButton.addEventListener('click', async () => {
+    await handleSyncFirestore(syncButton);
+  });
+}
+
+function setSyncStatus(message, success = true) {
+  const status = document.getElementById('sync-status');
+  if (status) {
+    status.textContent = message;
+    status.style.color = success ? '#0f766e' : '#b91c1c';
+  }
+}
+
+function setSyncButtonState(button, enabled, text) {
+  if (!button) return;
+  button.disabled = !enabled;
+  button.textContent = text;
+}
+
+async function handleSyncFirestore(button) {
+  if (!button) return;
+
+  setSyncButtonState(button, false, '同步中...');
+  setSyncStatus('從 Google Sheet 同步資料到 Firestore，請稍候...');
+
+  try {
+    const token = localStorage.getItem('authToken') || localStorage.getItem('managerToken');
+    const response = await fetch(`${API_BASE}/manager/sync`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    const payload = await response.json();
+    if (!response.ok || !payload.success) {
+      throw new Error(payload.error || '無法完成同步。');
+    }
+    setSyncStatus('同步完成，已更新 Firestore 使用者與班級資料。');
+    await loadManagerClasses();
+  } catch (error) {
+    setSyncStatus(error.message || '同步失敗，請稍後再試。', false);
+  } finally {
+    setSyncButtonState(button, true, '同步 Google Sheet 到 Firestore');
+  }
 }
 
 function setDateLabels() {
@@ -77,7 +129,6 @@ function renderEmptyState(message, grade = '未設定') {
   const classListContainer = document.getElementById('manager-class-list');
   const emptyState = document.getElementById('manager-empty-state');
   const totalClassesEl = document.getElementById('ibpj1z');
-  const totalAbsenceEl = document.getElementById('il9qbl');
   const pendingClassesEl = document.getElementById('ix56n3');
   const gradeLabel = document.getElementById('manager-grade-label');
 
@@ -87,7 +138,6 @@ function renderEmptyState(message, grade = '未設定') {
     emptyState.innerHTML = `<p class="class-meta">${message}</p>`;
   }
   if (totalClassesEl) totalClassesEl.textContent = '0';
-  if (totalAbsenceEl) totalAbsenceEl.textContent = '0';
   if (pendingClassesEl) pendingClassesEl.textContent = '0';
   if (gradeLabel) gradeLabel.textContent = `管理年段：${grade}`;
 }
@@ -99,7 +149,7 @@ function renderManagerClasses(data) {
   const totalAbsenceEl = document.getElementById('il9qbl');
   const pendingClassesEl = document.getElementById('ix56n3');
 
-  if (!classListContainer || !emptyState || !totalClassesEl || !totalAbsenceEl || !pendingClassesEl) {
+  if (!classListContainer || !emptyState || !totalClassesEl || !pendingClassesEl) {
     return;
   }
 
@@ -108,11 +158,9 @@ function renderManagerClasses(data) {
   const grade = data.grade || '未設定';
   const classes = data.classes || [];
   const summary = data.summary || {};
-  const absenceTotal = classes.reduce((sum, item) => sum + ((item.teacherConfirmed && item.absentCount) ? item.absentCount : 0), 0);
   const pendingCount = classes.filter((item) => !item.teacherConfirmed).length;
 
   const totalClasses = summary.totalClasses ?? classes.length;
-  const totalAbsence = summary.totalAbsence ?? absenceTotal;
   const pending = summary.pendingCount ?? pendingCount;
 
   setManagerGradeLabel(grade);
@@ -123,22 +171,7 @@ function renderManagerClasses(data) {
   }
 
   totalClassesEl.textContent = totalClasses.toString();
-  totalAbsenceEl.textContent = totalAbsence.toString();
   pendingClassesEl.textContent = pending.toString();
-
-  // Calculate total statistics across all submitted classes
-  const totalStats = calculateTotalStats(classes);
-
-  // Update sidebar statistics
-  updateStatValue('stat-value-sick', totalStats.sick);
-  updateStatValue('stat-value-personal', totalStats.personal);
-  updateStatValue('stat-value-absent', totalStats.absent);
-  updateStatValue('stat-value-late', totalStats.late);
-  updateStatValue('stat-value-mental', totalStats.mental);
-  updateStatValue('stat-value-menstrual', totalStats.menstrual);
-  updateStatValue('stat-value-official', totalStats.official);
-  updateStatValue('stat-value-other', totalStats.other);
-
   classListContainer.innerHTML = classes.map(createClassCardHtml).join('');
 }
 
@@ -149,43 +182,6 @@ function setManagerGradeLabel(grade) {
   }
 }
 
-function calculateTotalStats(classes) {
-  const stats = {
-    sick: 0,
-    personal: 0,
-    absent: 0,
-    late: 0,
-    mental: 0,
-    menstrual: 0,
-    official: 0,
-    other: 0
-  };
-
-  classes.forEach(cls => {
-    if (cls.submitted && cls.records) {
-      cls.records.forEach(record => {
-        const reason = record.reason;
-        if (reason === '病假') stats.sick++;
-        else if (reason === '事假') stats.personal++;
-        else if (reason === '曠課') stats.absent++;
-        else if (reason === '遲到') stats.late++;
-        else if (reason === '身心調適假') stats.mental++;
-        else if (reason === '生理假') stats.menstrual++;
-        else if (reason === '公假') stats.official++;
-        else if (reason === '其他') stats.other++;
-      });
-    }
-  });
-
-  return stats;
-}
-
-function updateStatValue(elementId, value) {
-  const element = document.getElementById(elementId);
-  if (element) {
-    element.textContent = value;
-  }
-}
 
 function createClassCardHtml(item) {
   const confirmed = item.teacherConfirmed;
@@ -198,57 +194,6 @@ function createClassCardHtml(item) {
     ? 'status-dot status-missing-dot'
     : (confirmed ? 'status-dot' : 'status-dot status-pending-dot');
   const submittedAt = item.submittedAt ? new Date(item.submittedAt).toLocaleString('zh-Hant-TW', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '尚未填報';
-
-  const metricsSection = submitted ? `
-    <div class="class-metrics">
-      <div class="metric-card">
-        <span class="metric-label">應到</span>
-        <strong class="font-heading metric-value">${item.studentCount}</strong>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">實到</span>
-        <strong class="font-heading metric-value">${item.attendanceCount}</strong>
-      </div>
-      <div class="metric-card">
-        <span class="metric-label">缺席</span>
-        <strong class="font-heading metric-value">${item.absentCount}</strong>
-      </div>
-    </div>
-  ` : `
-    <div class="class-pending-note">此班級尚未填報，無法顯示應到、實到與缺席數。</div>
-  `;
-
-  const tableContent = submitted ? `
-    <div class="table-shell scroll-panel absence-table-wrapper">
-      <div class="absence-table-card">
-        <div class="table-header">
-          <div>座號</div>
-          <div>事由</div>
-          <div>補充說明</div>
-        </div>
-        <div class="table-body">
-          ${item.records.map((record) => `
-            <div class="table-row">
-              <div class="table-field">
-                <span class="mobile-field-label">座號</span>
-                <strong class="font-heading seat-value">${record.seat}</strong>
-              </div>
-              <div class="table-field">
-                <span class="mobile-field-label">事由</span>
-                <span class="reason-badge">${record.reason}</span>
-              </div>
-              <div class="table-field">
-                <span class="mobile-field-label">補充說明</span>
-                <span class="remark-text">${record.remark || '-'}</span>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-      </div>
-    </div>
-  ` : `
-    <div class="pending-table-note">尚未有缺席資料。</div>
-  `;
 
   return `
     <article class="glass-card soft-shadow class-result-card">
@@ -263,8 +208,6 @@ function createClassCardHtml(item) {
           <p class="class-meta">導師：${item.teacherName} ｜ 填報時間：${submittedAt}</p>
         </div>
       </div>
-      ${metricsSection}
-      ${tableContent}
     </article>
   `;
 }

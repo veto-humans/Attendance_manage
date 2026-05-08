@@ -5,7 +5,7 @@ const API_BASE = window.API_BASE || '/api';
 // ============================================================================
 
 // 初始化登錄頁面
-if (document.location.pathname.includes('home.html')) {
+if (document.location.pathname === '/' || document.location.pathname.includes('/home')) {
   document.addEventListener('DOMContentLoaded', function() {
     initializeLoginPage();
   });
@@ -15,31 +15,27 @@ if (document.location.pathname.includes('home.html')) {
  * 初始化登錄頁面
  */
 function initializeLoginPage() {
-  const loginForm = document.getElementById('iq4ck');
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const rememberCheckbox = document.getElementById('iv57w');
-  const forgotPasswordLink = document.getElementById('imv3h');
+  const googleButton = document.getElementById('google-signin-button');
+  const loginForm = document.getElementById('login-form');
 
-  // 加載已保存的用戶信息
-  loadSavedCredentials();
+  if (typeof firebase === 'undefined' || !window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey) {
+    console.error('Firebase config is missing. Please configure FIREBASE_API_KEY and related env vars.');
+  } else {
+    firebase.initializeApp(window.FIREBASE_CONFIG);
+  }
 
-  // 表單提交事件
+  if (googleButton) {
+    googleButton.addEventListener('click', handleGoogleSignIn);
+  }
+
   if (loginForm) {
     loginForm.addEventListener('submit', handleLoginSubmit);
+    loadSavedCredentials();
   }
 
-  // 忘記密碼鏈接
+  const forgotPasswordLink = document.getElementById('forgot-password-link');
   if (forgotPasswordLink) {
     forgotPasswordLink.addEventListener('click', handleForgotPassword);
-  }
-
-  // 監聽輸入框變化以清除驗證錯誤
-  if (emailInput) {
-    emailInput.addEventListener('input', () => clearInputError(emailInput));
-  }
-  if (passwordInput) {
-    passwordInput.addEventListener('input', () => clearInputError(passwordInput));
   }
 }
 
@@ -47,72 +43,71 @@ function initializeLoginPage() {
  * 處理登錄表單提交
  * @param {Event} event - 表單提交事件
  */
-function handleLoginSubmit(event) {
-  event.preventDefault();
-
-  const emailInput = document.getElementById('email');
-  const passwordInput = document.getElementById('password');
-  const rememberCheckbox = document.getElementById('iv57w');
-
-  // 驗證輸入
-  if (!validateLoginForm(emailInput, passwordInput)) {
+async function handleGoogleSignIn() {
+  if (typeof firebase === 'undefined' || !window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey) {
+    alert('Firebase 尚未正確設定，請稍後再試。');
     return;
   }
 
-  // 獲取登錄信息
-  const email = emailInput.value.trim();
-  const password = passwordInput.value;
-  const rememberMe = rememberCheckbox.checked;
-
-  // 保存用戶選擇
-  if (rememberMe) {
-    saveCredentials(email);
-  } else {
-    clearSavedCredentials();
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    const result = await firebase.auth().signInWithPopup(provider);
+    const idToken = await result.user.getIdToken();
+    await performLoginWithGoogle(idToken);
+  } catch (error) {
+    console.error('Google sign in error:', error);
+    alert(error.message || 'Google 登入失敗，請稍後再試。');
   }
-
-  // 發送登錄請求
-  performLogin(email, password);
 }
 
-/**
- * 驗證登錄表單
- * @param {HTMLElement} emailInput - 電子郵件輸入框
- * @param {HTMLElement} passwordInput - 密碼輸入框
- * @returns {boolean} 驗證是否成功
- */
-function validateLoginForm(emailInput, passwordInput) {
-  let isValid = true;
+async function performLoginWithGoogle(idToken) {
+  const googleButton = document.getElementById('google-signin-button');
+  const originalText = googleButton ? googleButton.textContent : '登入中...';
 
-  // 驗證電子郵件
-  if (!emailInput.value.trim()) {
-    showInputError(emailInput, '請輸入電子郵件');
-    isValid = false;
-  } else if (!isValidEmail(emailInput.value)) {
-    showInputError(emailInput, '請輸入有效的電子郵件地址');
-    isValid = false;
+  if (googleButton) {
+    googleButton.disabled = true;
+    googleButton.textContent = '登入中...';
   }
 
-  // 驗證密碼
-  if (!passwordInput.value) {
-    showInputError(passwordInput, '請輸入密碼');
-    isValid = false;
-  } else if (passwordInput.value.length < 6) {
-    showInputError(passwordInput, '密碼長度至少為 6 個字符');
-    isValid = false;
+  try {
+    const response = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ idToken })
+    });
+
+    const payload = await response.json();
+    if (!response.ok || !payload.success) {
+      throw new Error(payload.error || '登入失敗，請重試。');
+    }
+
+    const user = payload.user || {};
+    localStorage.setItem('authToken', payload.token);
+    localStorage.setItem('userEmail', user.email || '');
+    localStorage.setItem('userName', user.name || '');
+    localStorage.setItem('className', user.className || '');
+    localStorage.setItem('studentCount', user.studentCount || '0');
+    localStorage.setItem('userRole', user.role || 'student');
+    localStorage.setItem('managedGrade', user.managedGrade || '');
+
+    if (user.role === 'Military Instructor') {
+      window.location.href = './manager.html';
+    } else if (user.role === 'secretary') {
+      window.location.href = './secretary.html';
+    } else if (user.role === 'teacher') {
+      window.location.href = './teacher.html';
+    } else {
+      window.location.href = './dashboard.html';
+    }
+  } catch (error) {
+    alert(error.message || '登入失敗，請稍後再試。');
+    if (googleButton) {
+      googleButton.disabled = false;
+      googleButton.textContent = originalText;
+    }
   }
-
-  return isValid;
-}
-
-/**
- * 驗證電子郵件格式
- * @param {string} email - 電子郵件地址
- * @returns {boolean} 是否為有效的電子郵件
- */
-function isValidEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
 }
 
 /**
@@ -172,7 +167,7 @@ function clearInputError(inputElement) {
  * @param {string} password - 密碼
  */
 async function performLogin(email, password) {
-  const submitButton = document.querySelector('.submit-button');
+  const submitButton = document.getElementById('login-submit-button');
   const originalText = submitButton ? submitButton.textContent : '登錄中...';
 
   if (submitButton) {
@@ -216,6 +211,8 @@ async function performLogin(email, password) {
 
     if (user.role === 'Military Instructor') {
       window.location.href = './manager.html';
+    } else if (user.role === 'secretary') {
+      window.location.href = './secretary.html';
     } else if (user.role === 'teacher') {
       window.location.href = './teacher.html';
     } else {
@@ -228,6 +225,42 @@ async function performLogin(email, password) {
       submitButton.textContent = originalText;
     }
   }
+}
+
+/**
+ * 處理本機帳密登入提交
+ * @param {Event} event
+ */
+function handleLoginSubmit(event) {
+  event.preventDefault();
+
+  clearInputError(document.getElementById('email'));
+  clearInputError(document.getElementById('password'));
+
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const rememberMeCheckbox = document.getElementById('rememberMe');
+
+  if (!email) {
+    showInputError(document.getElementById('email'), '請輸入電子郵件地址');
+    return;
+  }
+  if (!isValidEmail(email)) {
+    showInputError(document.getElementById('email'), '請輸入有效的電子郵件地址');
+    return;
+  }
+  if (!password) {
+    showInputError(document.getElementById('password'), '請輸入密碼');
+    return;
+  }
+
+  if (rememberMeCheckbox && rememberMeCheckbox.checked) {
+    saveCredentials(email);
+  } else {
+    clearSavedCredentials();
+  }
+
+  performLogin(email, password);
 }
 
 /**
@@ -252,14 +285,16 @@ function clearSavedCredentials() {
  */
 function loadSavedCredentials() {
   const emailInput = document.getElementById('email');
-  const rememberCheckbox = document.getElementById('iv57w');
+  const rememberCheckbox = document.getElementById('rememberMe');
 
   const rememberedEmail = localStorage.getItem('rememberedEmail');
   const rememberMe = localStorage.getItem('rememberMe');
 
   if (rememberedEmail && rememberMe === 'true') {
     emailInput.value = rememberedEmail;
-    rememberCheckbox.checked = true;
+    if (rememberCheckbox) {
+      rememberCheckbox.checked = true;
+    }
   }
 }
 
@@ -281,6 +316,15 @@ function handleForgotPassword(event) {
   } else {
     alert('請先輸入有效的電子郵件地址');
   }
+}
+
+/**
+ * 驗證電子郵件格式
+ * @param {string} email
+ * @returns {boolean}
+ */
+function isValidEmail(email) {
+  return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 /**

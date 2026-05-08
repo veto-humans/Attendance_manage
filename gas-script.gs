@@ -1,5 +1,6 @@
 const SHEET_ID = '1zJzpnklvE65XXCV_0rhIrRPkaaHEM_-T7VwpSfIA6jo';
 const USER_SHEET_NAME = 'Users';
+const GOOGLE_USER_SHEET_NAME = 'GoogleUsers';
 const CLASS_SHEET_NAME = 'Classes';
 
 function doPost(e) {
@@ -32,14 +33,26 @@ function doPost(e) {
       case 'getUserByEmail':
         return ContentService.createTextOutput(JSON.stringify(getUserByEmail(payload.email)))
           .setMimeType(ContentService.MimeType.JSON);
+      case 'getGoogleUserByEmail':
+        return ContentService.createTextOutput(JSON.stringify(getGoogleUserByEmail(payload.email)))
+          .setMimeType(ContentService.MimeType.JSON);
       case 'createUser':
         return ContentService.createTextOutput(JSON.stringify(createUser(payload)))
           .setMimeType(ContentService.MimeType.JSON);
       case 'getUsersByGrade':
         return ContentService.createTextOutput(JSON.stringify(getUsersByGrade(payload.grade)))
           .setMimeType(ContentService.MimeType.JSON);
+      case 'getAllUsers':
+        return ContentService.createTextOutput(JSON.stringify(getAllUsers()))
+          .setMimeType(ContentService.MimeType.JSON);
+      case 'getAllGoogleUsers':
+        return ContentService.createTextOutput(JSON.stringify(getAllGoogleUsers()))
+          .setMimeType(ContentService.MimeType.JSON);
       case 'getClassInfo':
         return ContentService.createTextOutput(JSON.stringify(getClassInfo(payload.className)))
+          .setMimeType(ContentService.MimeType.JSON);
+      case 'getAllClasses':
+        return ContentService.createTextOutput(JSON.stringify(getAllClasses()))
           .setMimeType(ContentService.MimeType.JSON);
       case 'upsertClass':
         return ContentService.createTextOutput(JSON.stringify(upsertClass(payload.className, payload.studentCount)))
@@ -287,6 +300,117 @@ function getUsersByGrade(grade) {
     });
 
   return { success: true, data: teachers };
+}
+
+function getAllUsers() {
+  const sheet = getSheet(USER_SHEET_NAME);
+  const rows = sheet.getDataRange().getValues();
+  const header = rows.shift();
+  const headerMap = normalizeHeaderMap(header);
+
+  const emailIndex = headerMap['email'];
+  const nameIndex = headerMap['name'];
+  const roleIndex = headerMap['role'];
+  const classNameIndex = headerMap['classname'];
+  const managedGradeIndex = headerMap['managedgrade'];
+  const classCounts = loadClassCounts();
+
+  if (typeof emailIndex !== 'number' || emailIndex < 0) {
+    return { success: false, error: 'Users sheet missing email column' };
+  }
+
+  const users = rows.map((row) => {
+    const className = row[classNameIndex] || '';
+    return {
+      name: row[nameIndex] || '',
+      email: row[emailIndex] || '',
+      className,
+      studentCount: classCounts[className] || 0,
+      role: row[roleIndex] || 'teacher',
+      managedGrade: normalizeManagedGrade(row[managedGradeIndex]) || ''
+    };
+  }).filter((user) => user.email);
+
+  return { success: true, data: users };
+}
+
+function getGoogleUserByEmail(email) {
+  const sheet = getSheet(GOOGLE_USER_SHEET_NAME);
+  const rows = sheet.getDataRange().getValues();
+  const header = rows.shift();
+  const headerMap = normalizeHeaderMap(header);
+
+  const emailIndex = headerMap['email'];
+  if (typeof emailIndex !== 'number' || emailIndex < 0) {
+    return { success: false, error: 'GoogleUsers sheet missing email column' };
+  }
+
+  const row = rows.find(r => r[emailIndex] === email);
+  if (!row) {
+    return { success: true, data: null };
+  }
+
+  const user = {
+    name: row[headerMap['name']] || '',
+    email: row[emailIndex],
+    className: row[headerMap['classname']] || '',
+    role: row[headerMap['role']] || 'teacher',
+    managedGrade: normalizeManagedGrade(row[headerMap['managedgrade']]) || ''
+  };
+
+  return { success: true, data: user };
+}
+
+function getAllGoogleUsers() {
+  const sheet = getSheet(GOOGLE_USER_SHEET_NAME);
+  const rows = sheet.getDataRange().getValues();
+  const header = rows.shift();
+  const headerMap = normalizeHeaderMap(header);
+
+  const emailIndex = headerMap['email'];
+  const nameIndex = headerMap['name'];
+  const roleIndex = headerMap['role'];
+  const classNameIndex = headerMap['classname'];
+  const managedGradeIndex = headerMap['managedgrade'];
+  const classCounts = loadClassCounts();
+
+  if (typeof emailIndex !== 'number' || emailIndex < 0) {
+    return { success: false, error: 'GoogleUsers sheet missing email column' };
+  }
+
+  const users = rows.map((row) => {
+    const className = row[classNameIndex] || '';
+    return {
+      name: row[nameIndex] || '',
+      email: row[emailIndex] || '',
+      className,
+      studentCount: classCounts[className] || 0,
+      role: row[roleIndex] || 'teacher',
+      managedGrade: normalizeManagedGrade(row[managedGradeIndex]) || ''
+    };
+  }).filter((user) => user.email);
+
+  return { success: true, data: users };
+}
+
+function getAllClasses() {
+  const sheet = getClassSheet();
+  const rows = sheet.getDataRange().getValues();
+  const header = rows.shift();
+  const headerMap = normalizeHeaderMap(header);
+
+  const classNameIndex = headerMap['classname'];
+  const studentCountIndex = headerMap['studentcount'];
+  if (typeof classNameIndex !== 'number' || typeof studentCountIndex !== 'number') {
+    return { success: false, error: 'Classes sheet missing className or studentCount column' };
+  }
+
+  const classes = rows.map((row) => ({
+    className: row[classNameIndex] || '',
+    studentCount: Number(row[studentCountIndex]) || 0
+  })).filter((cls) => cls.className);
+
+  return { success: true, data: classes };
 }
 
 function getTeacherByClass(className) {
