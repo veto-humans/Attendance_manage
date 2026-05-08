@@ -17,8 +17,10 @@ This backend uses Node.js + Express and stores user accounts and class informati
 4. Add `GAS_API_KEY` to both the GAS script properties and `.env`.
 5. Set up Firebase project:
    - Create a Firebase project at https://console.firebase.google.com
-   - Download the service account key JSON file
-   - Add to `.env`: `FIREBASE_SERVICE_ACCOUNT` (entire JSON as a string) and `FIREBASE_DATABASE_URL`
+   - Enable Authentication and Firestore Database
+   - Go to Project Settings → Your apps → Add Web app (</>) to get Web SDK config
+   - Download the service account key JSON file from Project Settings → Service Accounts
+   - Add to `.env`: `FIREBASE_SERVICE_ACCOUNT` (entire JSON as a string) and Web SDK variables (FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, etc.)
 6. Install dependencies:
    ```bash
    cd backend
@@ -36,7 +38,10 @@ GAS_WEBAPP_URL=<your-gas-web-app-url>
 GAS_API_KEY=<your-gas-api-key>
 JWT_SECRET=<your-jwt-secret>
 FIREBASE_SERVICE_ACCOUNT=<firebase-service-account-json>
-FIREBASE_DATABASE_URL=<your-firestore-database-url>
+FIREBASE_API_KEY=<firebase-web-sdk-api-key>
+FIREBASE_AUTH_DOMAIN=<your-project>.firebaseapp.com
+FIREBASE_PROJECT_ID=<your-project-id>
+FIREBASE_APP_ID=<firebase-app-id>
 ```
 
 ## Database Schema

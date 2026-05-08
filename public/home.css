@@ -481,6 +481,40 @@ video {
   box-shadow: 0 0 0 0px #fff, 0 0 0 calc(2px + 0px) rgb(191 219 254 / 1), 0 0 #0000;
 }
 
+.login-note {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: rgb(100 116 139 / 1);
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: rgb(100 116 139 / 1);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.separator::before,
+.separator::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: rgb(226 232 240 / 1);
+}
+
+.separator::before {
+  margin-right: 1rem;
+}
+
+.separator::after {
+  margin-left: 1rem;
+}
+
 .footer {
   border-top-width: 1px;
   border-color: rgb(226 232 240 / 1);
@@ -540,7 +574,7 @@ video {
 
   .footer {
     padding-left: 1.5rem;
-    padding-right: 1.5rem;
+    padding-right: 1rem;
   }
 
   .footer-container {
@@ -564,6 +598,100 @@ video {
   .form-options {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .footer {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  #iqm88 {
+    vertical-align: inherit;
+  }
+
+  #isevq {
+    vertical-align: inherit;
+  }
+
+  #it6bf {
+    vertical-align: inherit;
+  }
+
+  #i2x7c {
+    vertical-align: inherit;
+  }
+
+  #i6xbu {
+    vertical-align: inherit;
+  }
+
+  #iq4ck {
+    vertical-align: inherit;
+  }
+
+  #i8qqi {
+    vertical-align: inherit;
+  }
+
+  #i6m4q {
+    vertical-align: inherit;
+  }
+
+  #ilm4i {
+    vertical-align: inherit;
+  }
+
+  #ielgh {
+    vertical-align: inherit;
+  }
+
+  #iy5qg {
+    vertical-align: inherit;
+  }
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+@media (max-width: 992px) {
+  .login-section {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .login-layout {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+
+  .login-form-panel {
+    padding: 2rem;
+  }
+
+  .footer {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .footer-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .login-form-panel {
+    padding: 1.5rem;
   }
 
   .footer {

@@ -18,10 +18,20 @@ function initializeLoginPage() {
   const googleButton = document.getElementById('google-signin-button');
   const loginForm = document.getElementById('login-form');
 
-  if (typeof firebase === 'undefined' || !window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey) {
-    console.error('Firebase config is missing. Please configure FIREBASE_API_KEY and related env vars.');
-  } else {
+  // 檢查必要的 Firebase 配置
+  if (typeof firebase === 'undefined' || !window.FIREBASE_CONFIG || !window.FIREBASE_CONFIG.apiKey || !window.FIREBASE_CONFIG.authDomain || !window.FIREBASE_CONFIG.projectId) {
+    console.error('Firebase config is missing. Please configure FIREBASE_API_KEY, FIREBASE_AUTH_DOMAIN, and FIREBASE_PROJECT_ID.');
+    alert('Firebase 尚未正確設定，請稍後再試。');
+    return;
+  }
+
+  try {
     firebase.initializeApp(window.FIREBASE_CONFIG);
+    console.log('Firebase initialized successfully');
+  } catch (error) {
+    console.error('Firebase initialization failed:', error);
+    alert('Firebase 初始化失敗，請檢查配置。');
+    return;
   }
 
   if (googleButton) {
