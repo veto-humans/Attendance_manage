@@ -1,7 +1,8 @@
 const { getLatestAttendanceByClassName } = require('../models/Attendance');
 const { 
   getAllGoogleUsers,
-  getAllClasses
+  getAllClasses,
+  getUsersByGrade: getUsersByGradeFromGas
 } = require('../config/gas');
 const {
   getUsersByGrade: getUsersByGradeFromFirestore,
@@ -24,12 +25,20 @@ const normalizeManagedGrade = (grade) => {
 const buildClassStatus = async (teacher) => {
   try {
     const attendance = await getLatestAttendanceByClassName(teacher.className);
+    const studentCount = Number(teacher.studentCount) || Number(attendance?.studentCount) || 0;
+    const attendanceCount = Number(attendance?.attendanceCount) || 0;
+    const absentCount = Math.max(0, studentCount - attendanceCount);
+
     return {
       className: String(teacher.className || ''),
       teacherName: teacher.name,
       submitted: Boolean(attendance),
       teacherConfirmed: attendance?.teacherConfirmed === true,
-      submittedAt: attendance?.createdAt || null
+      submittedAt: attendance?.createdAt || null,
+      studentCount,
+      attendanceCount,
+      absentCount,
+      records: Array.isArray(attendance?.records) ? attendance.records : []
     };
   } catch (error) {
     console.error(`Error retrieving attendance for ${teacher.className}:`, error);
