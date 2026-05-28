@@ -6,100 +6,139 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="index,follow">
+  <meta name="generator" content="GrapesJS Studio">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/teacher.css" />
-  <link rel="shortcut icon" href="/attendance_web_icon.png "/>
+  <link rel="shortcut icon" href="/attendance_web_icon.png " />
   <script src="teacher.js" defer></script>
 </head>
 
-<body class="gjs-t-body font-body page-body">
-  <div class="page-shell">
-    <header class="top-header">
-      <div class="header-container">
-        <div class="brand-block">
-          <div class="brand-icon">
-            <img src="https://api.iconify.design/lucide-shield.svg?color=%231d4ed8" alt="教師確認圖示" class="brand-icon-image" />
-          </div>
-          <div class="brand-text">
-            <p class="header-eyebrow">Attendance Dashboard</p>
-            <h1 class="gjs-t-h1 font-heading header-title">教師確認頁面</h1>
+<body class="gjs-t-body font-body cls-5o96qr">
+  <div class="page-shell" id="page-shell">
+    <header class="top-header" id="top-header">
+      <div class="header-container" id="header-container">
+        <div class="brand-block" id="brand-block">
+          <div class="brand-text" id="brand-text">
+            <p class="eyebrow-text" id="eyebrow-text">Attendance Dashboard</p>
+            <h1 class="gjs-t-h1 font-heading page-title" id="page-title">教師確認頁面</h1>
           </div>
         </div>
-        <div class="header-actions">
-          <a href="./home.html" class="gjs-t-link home-link">返回首頁</a>
+        <div class="header-actions" id="header-actions">
+          <a href="./home.html" class="gjs-t-link back-link" id="back-link">返回首頁</a>
           <button type="button" class="secondary-button" id="logout-button">登出</button>
         </div>
       </div>
     </header>
-    <main class="main-content">
-      <section class="dashboard-section">
-        <div class="glass-card soft-shadow hero-card">
-          <div class="hero-content">
-            <div class="hero-top">
-              <div class="hero-intro">
-                <div class="status-pills">
-                  <span class="status-pill">教師確認</span>
-                  <span class="status-pill">完成前請確認學生填報</span>
+    <main class="main-content" id="main-content">
+      <section class="dashboard-section" id="dashboard-section">
+        <div class="overview-layout" id="overview-layout">
+          <div class="glass-card soft-shadow class-hero-card" id="class-hero-card">
+            <div class="class-hero-content" id="class-hero-content">
+              <div class="hero-top" id="hero-top">
+                <div class="hero-info" id="hero-info">
+                  <div class="status-pills" id="status-pills">
+                    <span class="status-pill" id="status-pill-teacher">教師確認</span>
+                    <span class="status-pill" id="status-pill-helper">請確認學生填報資料</span>
+                  </div>
+                  <div class="class-title-group" id="class-title-group">
+                    <h2 class="font-heading class-name" id="class-name">教師確認本班出缺席資料</h2>
+                    <p class="class-description" id="class-description">若學生已完成填報，請確認缺席資料無誤後點擊「確認出缺席」。若尚未填報，請提醒學生完成送出。</p>
+                  </div>
                 </div>
-                <div class="hero-title-group">
-                  <h2 class="font-heading hero-title">請檢視本班出缺席資料並完成確認</h2>
-                  <p class="hero-description">若學生已完成填報，請確認缺席資料無誤後點擊「確認出缺席」。若尚未填報，請提醒學生完成送出。</p>
+                <div class="hero-side-note" id="hero-side-note">
+                  <span class="date-label" id="date-label">班級</span>
+                  <strong class="font-heading date-value" id="teacher-class-name">載入中...</strong>
+                  <span class="session-label" id="teacher-status-text">載入中...</span>
                 </div>
-              </div>
-              <div class="hero-side-note">
-                <span class="side-note-label">班級</span>
-                <strong class="font-heading side-note-date" id="teacher-class-name">載入中...</strong>
-                <span class="side-note-subtext" id="teacher-status-text">載入中...</span>
               </div>
             </div>
           </div>
-        </div>
-
-        <div class="content-grid">
-          <section class="glass-card soft-shadow attendance-form-panel">
-            <div class="panel-header">
-              <div class="panel-intro">
-                <h2 class="gjs-t-h2 font-heading panel-title">最新填報紀錄</h2>
-                <p class="panel-subtitle">以下為該班級最新一筆學生填報資料，若內容正確請按下確認。</p>
+          <div class="summary-grid" id="summary-grid">
+            <div class="glass-card summary-card" id="summary-card-total-students">
+              <div class="card-header" id="card-header-2">
+                <img src="https://api.iconify.design/lucide-user-check.svg?color=%2315803d" alt="實到人數圖示" class="card-icon" id="card-icon-check" />
+                <span class="card-label" id="card-label-2">填報狀態</span>
               </div>
-              <div class="panel-actions">
-                <button type="button" class="import-button" id="refresh-button">重新整理</button>
+              <strong class="font-heading card-value" id="card-value-2">-</strong>
+              <p class="card-note" id="card-note-2">請刷新以取得最新狀態</p>
+            </div>
+            <div class="glass-card summary-card" id="summary-card-attendance">
+              <div class="card-header" id="card-header-3">
+                <img src="https://api.iconify.design/lucide-calendar-check.svg?color=%230f172a" alt="確認時間圖示" class="card-icon" id="card-icon-calendar" />
+                <span class="card-label" id="card-label-3">確認時間</span>
               </div>
+              <strong class="font-heading card-value" id="card-value-3">-</strong>
+              <p class="card-note" id="card-note-3">若尚未確認，請點擊下方按鈕</p>
             </div>
-            <div id="teacher-content-area">
-              <div class="content-message" id="teacher-message">正在載入您的班級資料...</div>
-            </div>
-            <div class="teacher-action-row">
-              <button type="button" class="gjs-t-button submit-button" id="confirm-button" style="display:none;" disabled>確認出缺席</button>
-            </div>
-          </section>
-          <aside class="sidebar-panel">
-            <div class="glass-card quick-stats-card">
-              <h3 class="font-heading sidebar-title">教師確認狀態</h3>
-              <div class="stats-list" id="teacher-confirmation-summary">
-                <div class="stat-item">
-                  <span class="stat-label">填報狀態</span>
-                  <strong class="font-heading stat-value" id="teacher-status-value">-</strong>
+          </div>
+          <div class="content-grid" id="content-grid">
+            <section class="glass-card soft-shadow attendance-form-panel" id="attendance-form-panel">
+              <div class="panel-header" id="panel-header">
+                <div class="panel-intro" id="panel-intro">
+                  <h2 class="gjs-t-h2 font-heading panel-title" id="panel-title">最新填報紀錄</h2>
+                  <p class="panel-subtitle" id="panel-subtitle">以下顯示本班最新學生填報資料，請確認後送出。</p>
                 </div>
-                <div class="stat-item">
-                  <span class="stat-label">確認時間</span>
-                  <strong class="font-heading stat-value" id="teacher-confirmed-at">-</strong>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">確認人</span>
-                  <strong class="font-heading stat-value" id="teacher-confirmed-by">-</strong>
+                <div class="panel-actions" id="panel-actions">
+                  <button type="button" class="import-button" id="refresh-button">重新整理</button>
                 </div>
               </div>
-            </div>
-          </aside>
+              <div id="teacher-content-area"></div>
+              <div class="teacher-action-row">
+                <button type="button" class="gjs-t-button submit-button" id="confirm-button" style="display:none;" disabled>確認出缺席</button>
+              </div>
+            </section>
+            <aside class="sidebar-panel" id="sidebar-panel">
+              <div class="glass-card quick-stats-card" id="quick-stats-card">
+                <h3 class="font-heading sidebar-title" id="sidebar-title-stats">教師確認狀態</h3>
+                <div class="stats-list" id="stats-list">
+                  <div class="stat-item" id="stat-item-status">
+                    <span class="stat-label" id="stat-label-status">確認狀態</span>
+                    <strong class="font-heading stat-value" id="teacher-status-value">-</strong>
+                  </div>
+                  <div class="stat-item" id="stat-item-time">
+                    <span class="stat-label" id="stat-label-time">確認時間</span>
+                    <strong class="font-heading stat-value" id="teacher-confirmed-at">-</strong>
+                  </div>
+                  <div class="stat-item" id="stat-item-by">
+                    <span class="stat-label" id="stat-label-by">確認人</span>
+                    <strong class="font-heading stat-value" id="teacher-confirmed-by">-</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="glass-card contact-card" id="contact-card">
+                <h3 class="font-heading sidebar-title" id="sidebar-title-contact">協助窗口</h3>
+                <div class="contact-item" id="contact-item-email">
+                  <img src="https://api.iconify.design/lucide-mail.svg?color=%2364748b" alt="電子郵件" class="contact-icon" id="contact-icon-email" />
+                  <div class="contact-text" id="contact-text-email">
+                    <span class="contact-label" id="contact-label-email">問題回報</span>
+                    <a href="mailto:s122222@yfms.tyc.edu.tw" class="gjs-t-link contact-link" id="contact-link-email">s122222@yfms.tyc.edu.tw</a>
+                  </div>
+                </div>
+                <div class="contact-item" id="contact-item-phone">
+                  <img src="https://api.iconify.design/lucide-phone.svg?color=%2364748b" alt="電話" class="contact-icon" id="contact-icon-phone" />
+                  <div class="contact-text" id="contact-text-phone">
+                    <span class="contact-label" id="contact-label-phone">校內分機</span>
+                    <span class="contact-value" id="contact-value-phone">#203 學務處</span>
+                  </div>
+                </div>
+                <div class="contact-item" id="contact-item-guide">
+                  <img src="https://api.iconify.design/lucide-file-text.svg?color=%2364748b" alt="規範" class="contact-icon" id="contact-icon-guide" />
+                  <div class="contact-text" id="contact-text-guide">
+                    <span class="contact-label" id="contact-label-guide">填報規範</span>
+                    <a href="/public/永豐高中學生請假外出辦法(114.1.20修訂).pdf" class="gjs-t-link contact-link" id="contact-link-guide">查看缺席事由代碼說明</a>
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
         </div>
       </section>
     </main>
-    <footer class="footer">
-      <div class="footer-container">
-        <p>出缺席填報系統｜教師確認頁面</p>
+    <footer class="footer" id="footer">
+      <div class="footer-container" id="footer-container">
+        <p id="footer-text-1">出缺席填報系統｜Teacher Panel</p>
       </div>
     </footer>
   </div>

@@ -308,6 +308,12 @@ video {
 }
 
 .footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
   border-top-width: 1px;
   border-color: rgb(226 232 240 / 1);
   background-color: rgb(255 255 255 / 0.8);
@@ -363,6 +369,12 @@ video {
 }
 
 .top-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
   border-bottom-width: 1px;
   border-color: rgb(226 232 240 / 0.8);
   background-color: rgb(255 255 255 / 0.9);
@@ -441,6 +453,8 @@ video {
 
 .main-content {
   flex: 1 1 0%;
+  padding-top: 90px;
+  padding-bottom: 80px;
 }
 
 .dashboard-section {
